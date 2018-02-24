@@ -1,0 +1,31 @@
+<resources>
+
+    <string name="app_name">WIT Selfie Competition</string>
+    <string name="prompt_fName">First Name</string>
+    <string name="prompt_lName">Last Name</string>
+    <string name="about_info">About Info</string>
+    <string name="save">Save</string>
+    <string name="join">Join</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="new_to_selfie">New to WIT Selfie Competition?</string>
+    <string name="type_your_email">Type your email here</string>
+    <string name="create_account"><b>Create an Account.</b></string>
+    <string name="reset_password">Reset Password</string>
+    <string name="register">Register</string>
+    <string name="profile_setup">Profile Setup</string>
+    <string name="splashTitle">WIT Selfie Competition</string>
+    <string name="title_activity_main">Main</string>
+    <string name="gender">Gender</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="full_name">Your Full Name</string>
+
+
+</resources>

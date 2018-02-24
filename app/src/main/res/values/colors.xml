@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="background">#083d6b</color>
+    <color name="progressBarColor">#96edda</color>
+    <color name="splashTitle">#ffffff</color>
+    <color name="hyperlink">#02c9ff</color>
+    <color name="input">#b7acc9</color>
+    <color name="dialogBackground">#083d6b</color>
+    <color name="dialogBorder">#72dcc3</color>
+    <color name="dialogText">#ffffff</color>
+    <color name="alertDialogBackground">#252b68</color>
+    <color name="alertDialogText">#afafb1</color>
+    <color name="darkGrey">#212121</color>
+</resources>
