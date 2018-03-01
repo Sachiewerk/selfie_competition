@@ -5,6 +5,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import ie.wit.witselfiecompetition.model.User;
+
 /**
  * Splash Screen Class
  * Logo for the app
@@ -22,21 +30,20 @@ public class SplashScreen extends AppCompatActivity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run (){
-                // check if user already logged in and verified
-                if (Helper.isVerifiedUser(SplashScreen.this, false)){
-                    if(Helper.isFirstLogin(SplashScreen.this)){
-                        Helper.redirect(SplashScreen.this, ProfileSetup.class, false); // go tp profilesetup activity
-                    }
-                    else {
-                        Helper.redirect(SplashScreen.this, Main.class, false);// go to main activity
+                if(Helper.hasNetworkConnection(SplashScreen.this)) {
+                    // check if user already logged in and verified
+                    if (Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
+                        Helper.firstLoginCheck(SplashScreen.this, Main.class, Login.class);
+                    } else { // go to login activity
+                        Helper.redirect(SplashScreen.this, Login.class, false);
                     }
                 }
                 else{
-                    Helper.redirect(SplashScreen.this, Login.class, false); // go to login activity
+                    Helper.showMessage(SplashScreen.this, "No Internet Connection!", "Please connect to Network then retry again", true);
                 }
             }
 
-        }, 1000);
+        }, 2000);
     }
 
 
@@ -49,5 +56,6 @@ public class SplashScreen extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         Helper.setContentAccordingToOrientation(this);
     }
+
 
 }

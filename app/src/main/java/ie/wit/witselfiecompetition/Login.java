@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +15,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import ie.wit.witselfiecompetition.model.User;
 
 
 /**
@@ -69,8 +76,8 @@ public class Login extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     Helper.toggleProgressBar(signIn, signInProgressBar);
                                     if (task.isSuccessful()) { // if logged in successfully
-                                        if(Helper.isVerifiedUser(Login.this, true)){ // then check if verified user
-                                            Helper.redirect(Login.this, Main.class, false);
+                                        if(Helper.isLoggedInVerifiedUser(Login.this, true)){
+                                            Helper.firstLoginCheck(Login.this, Main.class, ProfileSetup.class);
                                         }
                                     } else {
                                         Toast.makeText(Login.this,

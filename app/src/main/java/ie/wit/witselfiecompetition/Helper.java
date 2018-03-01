@@ -19,8 +19,17 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import ie.wit.witselfiecompetition.model.User;
+
 import static android.content.Context.MODE_PRIVATE;
 
 
@@ -203,7 +212,7 @@ public class Helper {
      * Check if the current user exists and verified
      * @return
      */
-    public static boolean isVerifiedUser(Activity activity, boolean message){
+    public static boolean isLoggedInVerifiedUser(Activity activity, boolean message){
         if(FirebaseAuth.getInstance().getCurrentUser()!=null) {
             if (!FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
                 if (message) {
@@ -222,7 +231,6 @@ public class Helper {
      * @param view
      */
     public static void toggleVisibility( View view){
-        Log.v("Yahya", "Here");
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -244,7 +252,7 @@ public class Helper {
      * @return
      */
     public static boolean isValidName(Activity activity, EditText nameEditText, String field){
-        String name = nameEditText.getText().toString();
+        String name = nameEditText.getText().toString().trim();
         if(name.isEmpty()){
             nameEditText.setError(field + " cannot be empty");
             return false;
@@ -262,21 +270,34 @@ public class Helper {
 
 
     /**
-     * This method checks the SharedPreferences file
-     * looks for firs name and last name (key, value) pairs
-     * if they don't exist, that means it's the first login ever
-     * @param activity
+     * This method checks with database
+     * looks for user id
+     * if it doesn't exist, that means it's the first login
+     * @param from
+     * @param one
+     * @param two
      * @return
      */
-    public static boolean isFirstLogin(Activity activity){
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("ie.wit.witselfiecompetition", MODE_PRIVATE);
-        String firstName =pref.getString("fName", null);
-        String lastName =pref.getString("lName", null);
-        if(firstName==null || lastName==null){
-            return true;
-        }
-        return false;
+    public static void firstLoginCheck(final Activity from, final Class one, final Class two) {
+        FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
+                equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            Helper.redirect(from, one, false);
+                        } else {
+                            Helper.redirect(from, two, false);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(from, "Failed to verify log in", Toast.LENGTH_LONG);
+                    }
+                });
     }
+
 
     /**
      * This method to add to SharedPreferences file
@@ -308,6 +329,16 @@ public class Helper {
             }
         }
 
+    }
+
+    /**
+     * Clear sharedPreferences when user sign out or close account
+     * @param activity
+     */
+    public static void clearSharedPreferences(Activity activity){
+        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("ie.wit.witselfiecompetition", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().commit();
     }
 
 }

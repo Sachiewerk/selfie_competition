@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class Main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -32,8 +34,10 @@ public class Main extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+               // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                       // .setAction("Action", null).show();
+                FirebaseAuth.getInstance().signOut();
+                Helper.redirect(Main.this, Login.class, false);
             }
         });
 
@@ -48,6 +52,7 @@ public class Main extends AppCompatActivity
 
         View header = navigationView.getHeaderView(0);
         TextView text = (TextView) header.findViewById(R.id.hintProfileImage);
+
 
         /*((DrawerLayout) findViewById(R.id.drawer_layout)).addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override

@@ -44,7 +44,7 @@ public class ProfileSetup extends AppCompatActivity {
     Spinner coursesMenu;
     String course;
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Helper.setContentAccordingToOrientation(ProfileSetup.this);
@@ -86,6 +86,14 @@ public class ProfileSetup extends AppCompatActivity {
 
 
 
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Helper.clearSharedPreferences(ProfileSetup.this);
+        Log.v("Tag", "Closed");
     }
 
     @Override
@@ -148,15 +156,13 @@ public class ProfileSetup extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            HashMap<String, String> hmap = new HashMap<String, String>();
-                            hmap.put("fName", user.getfName());
-                            hmap.put("lName", user.getlName());
+                            HashMap<String, Boolean> hmap = new HashMap<>();
+                            hmap.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
                             Helper.addToSharedPreferences(ProfileSetup.this, hmap);
                             Helper.redirect(ProfileSetup.this, Main.class, false);
                         }
 
                         else{
-                            Log.v("tag", task.getException().toString());
                             Toast.makeText(ProfileSetup.this, "Failed to add user", Toast.LENGTH_SHORT).show();
                             Helper.toggleProgressBar(joinButton, profileSetupProgressBar);
                         }
