@@ -1,15 +1,14 @@
-package ie.wit.witselfiecompetition;
+package ie.wit.witselfiecompetition.model;
 
 /**
  * Created by yahya on 21/02/18.
  */
 
 public class User {
-    public enum Gender {MALE, FEMALE};
     private String fName;
     private String lName;
-    private Gender gender;
-    private Course course;
+    private String gender;
+    private String course;
     private String aboutMet;
     private String image;
 
@@ -17,13 +16,13 @@ public class User {
 
     }
 
-    public User(String fName, String lName, Gender gender) {
+    public User(String fName, String lName, String gender) {
         this.fName = fName;
         this.lName = lName;
         this.gender = gender;
     }
 
-    public User(String fName, String lName, Gender gender, Course course, String aboutMet, String image) {
+    public User(String fName, String lName, String gender, String course, String aboutMet, String image) {
         this.fName = fName;
         this.lName = lName;
         this.gender = gender;
@@ -37,18 +36,10 @@ public class User {
         return "User{" +
                 "fName='" + fName + '\'' +
                 ", lName='" + lName + '\'' +
-                ", gender=" + gender.toString().toLowerCase()+
-                ", course=" + course.toString().toLowerCase() +
+                ", gender=" + gender+
+                ", course=" + course +
                 ", aboutMet='" + aboutMet + '\'' +
                 ", image='" + image + '\'' +
-                '}';
-    }
-
-    public String profileSetup(){
-        return "User{" +
-                "fName='" + fName + '\'' +
-                ", lName='" + lName + '\'' +
-                ", gender=" + gender +
                 '}';
     }
 
@@ -68,19 +59,19 @@ public class User {
         this.lName = lName;
     }
 
-    public Gender getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
-    public Course getCourse() {
+    public String getCourse() {
         return course;
     }
 
-    public void setCourse(Course course) {
+    public void setCourse(String course) {
         this.course = course;
     }
 

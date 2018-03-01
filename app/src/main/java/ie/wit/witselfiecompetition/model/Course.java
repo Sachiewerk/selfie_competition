@@ -1,4 +1,4 @@
-package ie.wit.witselfiecompetition;
+package ie.wit.witselfiecompetition.model;
 
 /**
  * All courses in WIT 2018
@@ -112,6 +112,20 @@ public enum Course {
     public String toString() {
         return name().replace("_", " ");
     }
+
+    /**
+     * Get all courses as in an array of String
+     * @return courses
+     */
+    public static String[] courses() {
+        String[] courses = new String[99];
+        int i=0;
+        for(Course course : Course.values()) {
+            courses[i++] = course.toString();
+        }
+        return courses;
+    }
+
 
 }
 

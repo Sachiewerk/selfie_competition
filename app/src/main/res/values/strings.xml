@@ -20,6 +20,7 @@
     <string name="splashTitle">WIT Selfie Competition</string>
     <string name="title_activity_main">Main</string>
     <string name="gender">Gender</string>
+    <string name="prompt_courses">Choose Your Course</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

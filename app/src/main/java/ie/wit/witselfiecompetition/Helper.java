@@ -19,10 +19,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import static android.content.Context.MODE_PRIVATE;
 
 
@@ -271,7 +269,7 @@ public class Helper {
      * @return
      */
     public static boolean isFirstLogin(Activity activity){
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("ie.wit.witselfiecompetition", MODE_PRIVATE);
         String firstName =pref.getString("fName", null);
         String lastName =pref.getString("lName", null);
         if(firstName==null || lastName==null){
@@ -286,7 +284,7 @@ public class Helper {
      * @param map
      */
     public static void addToSharedPreferences(Activity activity, Map<String,?> map) {
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("ie.wit.witselfiecompetition", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
 
         for (Map.Entry<String,?> entry : map.entrySet()) {
@@ -294,19 +292,19 @@ public class Helper {
             String k = entry.getKey();
 
             if(v instanceof String){
-                editor.putString(k,(String)v);
+                editor.putString(k,(String)v).commit();
             }
             else if (v instanceof Integer){
-                editor.putInt(k, (Integer)v);
+                editor.putInt(k, (Integer)v).commit();
             }
             else if (v instanceof Float){
-                editor.putFloat(k, (Float)v);
+                editor.putFloat(k, (Float)v).commit();
             }
             else if (v instanceof Long){
-                editor.putLong(k, (Long)v);
+                editor.putLong(k, (Long)v).commit();
             }
             else if (v instanceof Boolean){
-                editor.putBoolean(k, (Boolean)v);
+                editor.putBoolean(k, (Boolean)v).commit();
             }
         }
 

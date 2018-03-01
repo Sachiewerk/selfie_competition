@@ -1,29 +1,36 @@
 package ie.wit.witselfiecompetition;
 
-import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 
+import ie.wit.witselfiecompetition.model.Course;
+import ie.wit.witselfiecompetition.model.User;
+
 /**
- * Created by yahya on 18/02/18.
+ * This Class to setup the user profile at the
+ * very first login
+ * @author Yahya Almardeny
+ * @version 01/03/2018
  */
 
 public class ProfileSetup extends AppCompatActivity {
@@ -32,14 +39,15 @@ public class ProfileSetup extends AppCompatActivity {
     RadioGroup genderRadioGroup;
     RadioButton maleRadioButton, femaleRadioButton;
     Button joinButton;
-    User.Gender gender;
+    String gender;
     ProgressBar profileSetupProgressBar;
-
+    Spinner coursesMenu;
+    String course;
 
         @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile_setup_dialog);
+        Helper.setContentAccordingToOrientation(ProfileSetup.this);
 
         firstNameEditText = findViewById(R.id.firstNameEditText);
         lastNameEditText = findViewById(R.id.lastNameEditText);;
@@ -48,15 +56,29 @@ public class ProfileSetup extends AppCompatActivity {
         femaleRadioButton = findViewById(R.id.femaleRadioButton);
         joinButton = findViewById(R.id.joinButton);
         profileSetupProgressBar = findViewById(R.id.profileSetupProgressBar);
+        coursesMenu = findViewById(R.id.coursesMenu);
+        final String[] courses = Course.courses();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, courses);
+        coursesMenu.setAdapter(adapter);
+
+        coursesMenu.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                course = courses[i];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
 
         joinButton .setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(isValidInput()){
                     Helper.toggleProgressBar(joinButton, profileSetupProgressBar);
-                    String fName = firstNameEditText.getText().toString();
-                    String lName = lastNameEditText.getText().toString();
-                    User user = new User(fName, lName, gender, null, "", "" );
+                    String fName = firstNameEditText.getText().toString().trim();
+                    String lName = lastNameEditText.getText().toString().trim();
+                    User user = new User(fName, lName, gender, course, "", "" );
                     addNewUser(user);
                 }
             }
@@ -69,7 +91,13 @@ public class ProfileSetup extends AppCompatActivity {
     @Override
     public void onBackPressed(){/* To disable Back button*/}
 
-    private User.Gender gender(){
+
+
+    /**
+     * Validate and return the chosen gender
+     * @return
+     */
+    private String gender(){
         if (genderRadioGroup.getCheckedRadioButtonId() == -1) {
             // no gender is checked
             Toast.makeText(ProfileSetup.this,
@@ -77,15 +105,21 @@ public class ProfileSetup extends AppCompatActivity {
         }
         else {
             if(maleRadioButton.isChecked()){
-                return User.Gender.MALE;
+                return "Male";
             }
             else if(femaleRadioButton.isChecked()){
-                return User.Gender.FEMALE;
+                return "Female";
             }
         }
         return null;
     }
 
+
+
+    /**
+     * validate the input form before proceeding
+     * @return
+     */
     private boolean isValidInput(){
         gender = gender();
         if(gender!=null){
@@ -98,6 +132,13 @@ public class ProfileSetup extends AppCompatActivity {
         return false;
     }
 
+
+
+    /**
+     * This private method to add new user to
+     * FireBase database
+     * @param user
+     */
     private void addNewUser(final User user) {
 
         FirebaseDatabase.getInstance().getReference().getRoot()
@@ -108,7 +149,9 @@ public class ProfileSetup extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
                             HashMap<String, String> hmap = new HashMap<String, String>();
-                            hmap.put(user.getfName(), user.getlName());
+                            hmap.put("fName", user.getfName());
+                            hmap.put("lName", user.getlName());
+                            Helper.addToSharedPreferences(ProfileSetup.this, hmap);
                             Helper.redirect(ProfileSetup.this, Main.class, false);
                         }
 
@@ -120,5 +163,18 @@ public class ProfileSetup extends AppCompatActivity {
                     }
                 });
     }
+
+
+
+    /**
+     * This method is invoked upon
+     * rotating the mobile phone
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Helper.setContentAccordingToOrientation(this);
+    }
+
 
 }
