@@ -117,9 +117,6 @@ public class Login extends AppCompatActivity {
         if(!Helper.isValidEmail(emailEditText)) {
             flag = false;
         }
-        if(!Helper.isValidPassword(passwordEditText)) {
-            flag = false;
-        }
         return flag;
     }
 

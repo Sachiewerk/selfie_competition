@@ -259,7 +259,7 @@ public class Helper {
 
         }
         for(char c : name.toCharArray()){
-            if(!Character.isLetter(c)){
+            if(!Character.isLetter(c) && !Character.isSpaceChar(c)){
                 Toast.makeText(activity, "Please insert your real "+field,
                         Toast.LENGTH_SHORT).show();
                 return false;

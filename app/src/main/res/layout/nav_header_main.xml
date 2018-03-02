@@ -26,29 +26,60 @@
             android:layout_height="@dimen/_70sdp"
             app:srcCompat="@drawable/male" />
 
-        <TextView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/hintProfileImage"
-            android:layout_width="@dimen/_70sdp"
-            android:layout_height="@dimen/_50sdp"
-            android:layout_marginTop="@dimen/_20sdp"
-            android:alpha="0.0"
-            android:background="@color/darkGrey"
+        <TextView
+            android:id="@+id/fullNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_14ssp"
             android:textColor="@color/splashTitle"
-            android:textSize="@dimen/_11ssp"
-            android:gravity="bottom|center"
-            android:text="Update Profile Picture" />
-
+            android:layout_below="@id/profileImage"
+            android:text="@string/full_name" />
 
     </RelativeLayout>
 
 
-    <TextView
-        android:id="@+id/fullNameTextView"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/_14ssp"
-        android:textColor="@color/splashTitle"
-        android:text="@string/full_name" />
+
+
 
 </LinearLayout>
+
+<!--
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/picMenuOptions"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_58sdp"
+            android:layout_marginTop="@dimen/_25sdp"
+            android:layout_marginLeft="@dimen/_25sdp"
+            android:background="@drawable/border_shadow"
+            android:gravity="center|center"
+            android:orientation="vertical"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+            <TextView
+                android:id="@+id/takePicTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/_3sdp"
+                android:text="@string/take_pic"
+                android:textColor="@color/darkGrey"
+                android:textSize="@dimen/_12ssp" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_5sdp"/>
+
+            <TextView
+                android:id="@+id/uploadPicTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/darkGrey"
+                android:textSize="@dimen/_12ssp"
+                android:paddingLeft="@dimen/_3sdp"
+                android:text="@string/upload_pic" />
+
+        </LinearLayout>
+        -->
