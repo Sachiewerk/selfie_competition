@@ -39,11 +39,11 @@ public class SplashScreen extends AppCompatActivity {
                     }
                 }
                 else{
-                    Helper.showMessage(SplashScreen.this, "No Internet Connection!", "Please connect to Network then retry again", true);
+                    Helper.showMessage(SplashScreen.this, "No Internet Connection!", "Please connect to Network and retry again", true);
                 }
             }
 
-        }, 2000);
+        }, 100);
     }
 
 

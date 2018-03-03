@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 
 /**
- * Created by yahya on 17/02/18.
+ * Created by Yahya on 17/02/18.
  * Register User for first time with
  * WIT Selfie Competition
  */

@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import ie.wit.witselfiecompetition.model.Course;
 import ie.wit.witselfiecompetition.model.User;
@@ -90,13 +91,6 @@ public class ProfileSetup extends AppCompatActivity {
 
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Helper.clearSharedPreferences(ProfileSetup.this);
-        Log.v("Tag", "Closed");
-    }
-
-    @Override
     public void onBackPressed(){/* To disable Back button*/}
 
 
@@ -144,21 +138,20 @@ public class ProfileSetup extends AppCompatActivity {
 
     /**
      * This private method to add new user to
-     * FireBase database
+     * FireBase database and sharedPreferences
      * @param user
      */
     private void addNewUser(final User user) {
 
         FirebaseDatabase.getInstance().getReference().getRoot()
                 .child("Users").child(FirebaseAuth.getInstance().getCurrentUser()
-                .getUid()).push().setValue(user)
+                .getUid()).setValue(user)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            HashMap<String, Boolean> hmap = new HashMap<>();
-                            hmap.put(FirebaseAuth.getInstance().getCurrentUser().getUid(), true);
-                            Helper.addToSharedPreferences(ProfileSetup.this, hmap);
+                            Map<String, String> profileData = Helper.getInfoInMap(user);
+                            Helper.addToSharedPreferences(ProfileSetup.this, profileData);
                             Helper.redirect(ProfileSetup.this, Main.class, false);
                         }
 

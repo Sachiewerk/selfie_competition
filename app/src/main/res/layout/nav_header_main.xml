@@ -13,31 +13,34 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/profileImageContainer">
-
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
         <ImageView xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profileImage"
             android:layout_width="@dimen/_70sdp"
             android:layout_height="@dimen/_70sdp"
-            app:srcCompat="@drawable/male" />
+            android:scaleType="centerCrop"
+            android:adjustViewBounds ="true" />
+
+                <ProgressBar xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/profileImageProgressBar"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:layout_marginLeft="@dimen/_15sdp"
+                    android:visibility="invisible" />
 
         <TextView
             android:id="@+id/fullNameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
             android:textSize="@dimen/_14ssp"
             android:textColor="@color/splashTitle"
-            android:layout_below="@id/profileImage"
-            android:text="@string/full_name" />
+            android:layout_below="@id/profileImage" />
 
-    </RelativeLayout>
-
-
+        </RelativeLayout>
 
 
 

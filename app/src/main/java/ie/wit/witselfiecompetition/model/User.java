@@ -1,5 +1,8 @@
 package ie.wit.witselfiecompetition.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by yahya on 21/02/18.
  */
@@ -12,15 +15,7 @@ public class User {
     private String aboutMet;
     private String image;
 
-    public User(){
-
-    }
-
-    public User(String fName, String lName, String gender) {
-        this.fName = fName;
-        this.lName = lName;
-        this.gender = gender;
-    }
+    public User(){}
 
     public User(String fName, String lName, String gender, String course, String aboutMet, String image) {
         this.fName = fName;
@@ -90,4 +85,5 @@ public class User {
     public void setImage(String image) {
         this.image = image;
     }
+
 }
