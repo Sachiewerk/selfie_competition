@@ -53,18 +53,8 @@ public class Main extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                       // .setAction("Action", null).show();
-                Helper.clearSharedPreferences(Main.this);
-                FirebaseAuth.getInstance().signOut();
-
-                Helper.redirect(Main.this, Login.class, false);
-            }
-        });
+        // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        // .setAction("Action", null).show();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -130,6 +120,9 @@ public class Main extends AppCompatActivity
     }
 
 
+    /**
+     * Take picture using the camera
+     */
     public void takePicture() {
         String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
         String newDirPath = picturesDir + "/witSelfieCompetition/";
@@ -153,7 +146,9 @@ public class Main extends AppCompatActivity
     }
 
 
-
+    /**
+     * Upload picture from gallery
+     */
     public void uploadPicture() {
         Intent gallery = new Intent();
         gallery.setType("image/*");
@@ -255,7 +250,7 @@ public class Main extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -292,21 +287,21 @@ public class Main extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.nav_profile) {
+
+        } else if (id == R.id.nav_competition) {
+
         } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_settings) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_signout) {
+            FirebaseAuth.getInstance().signOut();
+            Helper.redirect(Main.this, Login.class, false);
+            return true;
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

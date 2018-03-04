@@ -25,9 +25,17 @@
     <style name="WitTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/colorMain</item>
     </style>
 
-    <style name="WitTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="WitTheme.SplashScreen">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="WitTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <item name="colorPrimary">@color/background</item>
+    </style>
 
     <style name="WitTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
