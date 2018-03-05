@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +38,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -283,6 +288,10 @@ public class Helper {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
+                            // check sharedPreferences in case user is using another phone
+                            if(!isSharedPreferencesUpdated(from)){
+                                copyUserInfoFromDatabaseToSharedPref(from);
+                            }
                             Helper.redirect(from, one, false);
                         } else {
                             Helper.redirect(from, two, false);
@@ -332,9 +341,6 @@ public class Helper {
 
 
 
-
-
-
     /**
      * Check and Ask for permission to write to phone storage
      * @param activity
@@ -370,6 +376,7 @@ public class Helper {
                             String lastName = user.getlName();
                             String encodedImage = user.getImage();
                             String gender = user.getGender();
+
                             fullName.setText(firstName + " " + lastName);
 
                             if (encodedImage.isEmpty()) {
@@ -404,8 +411,9 @@ public class Helper {
      * @param profileImage
      */
     public static void setPersonalImageAndName(Activity activity, TextView fullName, ImageView profileImage){
-        String name = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
+        String name = FirebaseAuth.getInstance().getCurrentUser().getUid();
         SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
+
         fullName.setText(pref.getString("fName", "") + " " + pref.getString("lName", ""));
         String gender = pref.getString("gender", "");
         String encodedImage = pref.getString("image", "");
@@ -457,22 +465,38 @@ public class Helper {
 
     /**
      * Encode a given uri of image to a Base64 string
+     * let user specify approximate resulted JPEG image size in kilobytes
      * @param activity
      * @param imageUri
-     * @param thumbnail
+     * @param dstSize
      * @return
      */
-   public static String encodeImage(final Activity activity, Uri imageUri, boolean thumbnail){
+   public static String encodeImage(final Activity activity, Uri imageUri, int dstSize){
         try{
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getContentResolver(), imageUri);
 
-            if(thumbnail){
-                int dstWidth = 500;
-                int dstHeight = (int)((float)dstWidth/((float)bitmap.getWidth()/(float)bitmap.getHeight()));
-                bitmap = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, true);
-            }
+            float aspectRatio = (float)bitmap.getWidth() / (float)bitmap.getHeight();
+
+            int BIT_DEPTH = JPEGBitDepth(activity, bitmap);
+
+            float dstSizeInBits = dstSize * 8 * 1024;
+
+            // sizeInBits = width * height * BIT_DEPTH (bit per pixel)
+            // int width = (sizeInBits) / (height * BIT_DEPTH);
+            // but height = width / aspectRatio -> substitute height
+            // keep evaluating : width = squareRoot((sizeIinBits * aspectRatio) / BIT_DEPTH)
+
+            int dstWidth = (int)Math.sqrt((dstSizeInBits*aspectRatio)/(BIT_DEPTH));
+            int dstHeight = (int) ((float)dstWidth / aspectRatio);
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false); // to maintain aspect ratio
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+
+            bitmap.recycle();
+
             return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
 
         } catch (Exception e){
@@ -481,6 +505,79 @@ public class Helper {
         }
    }
 
+
+
+    /**
+     * Encode bitmap to 64Based String
+     * @param activity
+     * @param bitmap
+     * @param dstSize
+     * @return
+     */
+    public static String encodeImage(final Activity activity, Bitmap bitmap, int dstSize){
+            float aspectRatio = (float)bitmap.getWidth() / (float)bitmap.getHeight();
+
+            int BIT_DEPTH = JPEGBitDepth(activity, bitmap);
+
+            float dstSizeInBits = dstSize * 8 * 1024;
+
+            // sizeInBits = width * height * BIT_DEPTH (bit per pixel)
+            // int width = (sizeInBits) / (height * BIT_DEPTH);
+            // but height = width / aspectRatio -> substitute height
+            // keep evaluating : width = squareRoot((sizeIinBits * aspectRatio) / BIT_DEPTH)
+
+            int dstWidth = (int)Math.sqrt((dstSizeInBits*aspectRatio)/(BIT_DEPTH));
+            int dstHeight = (int) ((float)dstWidth / aspectRatio);
+
+            bitmap = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, false); // to maintain aspect ratio
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+
+            bitmap.recycle();
+
+            return Base64.encodeToString(out.toByteArray(), Base64.DEFAULT);
+    }
+
+
+    /**
+     * Practically check the JPEG Bit Depth used in JPEG compression
+     * and store the value in SharedPReferences
+     * If it's already stored, just retrieve it
+     * @param activity
+     * @param bitmap
+     * @return
+     */
+   private static int JPEGBitDepth(Activity activity, Bitmap bitmap){
+
+       SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("JPEG", MODE_PRIVATE);
+       int BIT_DEPTH = pref.getInt("BIT_DEPTH", -1);
+       if(BIT_DEPTH>0){
+           return BIT_DEPTH;
+       }
+
+       File temp = new File(activity.getCacheDir(), "temp.jpg");
+       int width = bitmap.getWidth();
+       int height = bitmap.getHeight();
+
+       try {
+           temp.createNewFile();
+           OutputStream os = new BufferedOutputStream(new FileOutputStream(temp));
+           bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+           os.close();
+           double lenInBits = temp.length() * Byte.SIZE;
+           temp.delete();
+           BIT_DEPTH = (int)Math.round(lenInBits/(width*height));
+           SharedPreferences.Editor editor = pref.edit();
+           editor.putInt("BIT_DEPTH", BIT_DEPTH);
+           return BIT_DEPTH;
+
+           }catch(Exception e){
+               Log.v("jpeg bit depth", e.getMessage());
+               return 0;
+           }
+   }
 
 
     /**
@@ -494,6 +591,42 @@ public class Helper {
        return bitmap;
    }
 
+
+    /**
+     * Change cover photo in the settings
+     * upon user's request
+     * @param color
+     * @param header
+     */
+   public static void changeHeaderImageTheme(String color, LinearLayout header){
+       switch (color.toUpperCase()) {
+           case "BLUE":
+               header.setBackgroundResource(R.drawable.header_blue);
+               break;
+           case "RED":
+               header.setBackgroundResource(R.drawable.header_red);
+               break;
+           case "PURPLE":
+               header.setBackgroundResource(R.drawable.header_purple);
+               break;
+           case "GREEN":
+               header.setBackgroundResource(R.drawable.header_green);
+               break;
+           case "ORANGE":
+               header.setBackgroundResource(R.drawable.header_orange);
+               break;
+           case "GREY":
+               header.setBackgroundResource(R.drawable.header_grey);
+               break;
+           case "YELLOW":
+               header.setBackgroundResource(R.drawable.header_yellow);
+               break;
+           case "CYAN":
+               header.setBackgroundResource(R.drawable.header_cyan);
+               break;
+       }
+
+   }
 
 
     /**
@@ -529,11 +662,36 @@ public class Helper {
      * @param activity
      */
     public static void clearSharedPreferences(Activity activity){
-        String name = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
+        String name = FirebaseAuth.getInstance().getCurrentUser().getUid();
         SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.clear().commit();
+        editor.clear().apply();
     }
+
+
+    public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity){
+
+        FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
+                equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                        String encodedImage = user.getImage();
+                        if (!encodedImage.isEmpty()) {
+                            byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            user.setImage(encodeImage(activity,bitmap, 100 ));
+                            Map<String, String> profileInfo = getInfoInMap(user);
+                            addToSharedPreferences(activity, profileInfo);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {}
+                });
+    }
+
 
 
     /**
@@ -548,5 +706,21 @@ public class Helper {
         profileData.put("course", user.getCourse());
         profileData.put("image", user.getImage());
         return profileData;
+    }
+
+
+    /**
+     * Check if SharedPreferences for the current user
+     * exists and contains profile info
+     * @param activity
+     * @return
+     */
+    public static boolean isSharedPreferencesUpdated(Activity activity){
+        SharedPreferences pref = activity.getApplicationContext()
+                .getSharedPreferences(FirebaseAuth.getInstance().getUid(), MODE_PRIVATE);
+
+        return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
+                !pref.getString("lName", "").isEmpty() &&
+                !pref.getString("gender", "").isEmpty();
     }
 }

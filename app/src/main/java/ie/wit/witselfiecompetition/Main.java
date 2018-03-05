@@ -1,14 +1,15 @@
 package ie.wit.witselfiecompetition;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.View;
@@ -70,8 +71,12 @@ public class Main extends AppCompatActivity
         profileImage =  header.findViewById(R.id.profileImage);
         profileImageProgressBar = header.findViewById(R.id.profileImageProgressBar);
 
-        //Helper.setPersonalImageAndNameFromDB(fullNameTextView, profileImage);
-        Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
+        if(Helper.isSharedPreferencesUpdated(Main.this)){
+            Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
+        }
+        else{
+            Helper.setPersonalImageAndNameFromDB(fullNameTextView, profileImage);
+        }
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,7 +169,10 @@ public class Main extends AppCompatActivity
 
 
         /**** TAKING PICTURE USING CAMERA****/
-        if(requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_CANCELED) { new File(uri.getPath()).delete();}
+        if(requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_CANCELED) {
+            File f = new File(uri.getPath());
+            f.delete();
+        }
         if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
             Helper.toggleProgressBar(profileImage, profileImageProgressBar);
@@ -179,7 +187,7 @@ public class Main extends AppCompatActivity
                             e.getLocalizedMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(Main.this,uri, true); //500 x 600
+                    final String thumbnail = Helper.encodeImage(Main.this,uri, 100);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(Main.this,thumbnailInfo);
@@ -193,11 +201,10 @@ public class Main extends AppCompatActivity
                         }
                     });
 
-                    final String original = Helper.encodeImage(Main.this,uri, false);
-                    Map<String, String> originalInfo = new HashMap<>();
-                    originalInfo.put("image", original);
-                    Helper.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
-
+                    final String databaseImg = Helper.encodeImage(Main.this,uri, 1000);
+                    Map<String, String> databaseImgInfo = new HashMap<>();
+                    databaseImgInfo.put("image", databaseImg);
+                    Helper.addToDatabase(Main.this,"Users", databaseImgInfo, "Failed to add image to database!");
 
                 }
             });
@@ -211,7 +218,7 @@ public class Main extends AppCompatActivity
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, true); //500 x 600
+                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 100); //500 x 600
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
 
@@ -225,7 +232,7 @@ public class Main extends AppCompatActivity
 
                     Helper.addToSharedPreferences(Main.this,thumbnailInfo);
 
-                    final String original = Helper.encodeImage(Main.this,imageUri, false);
+                    final String original = Helper.encodeImage(Main.this,imageUri, 1000);
                     Map<String, String> originalInfo = new HashMap<>();
                     originalInfo.put("image", original);
                     Helper.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
