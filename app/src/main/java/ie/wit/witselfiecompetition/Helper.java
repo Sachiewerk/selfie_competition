@@ -45,8 +45,10 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
+import ie.wit.witselfiecompetition.model.SharedPreferencesListener;
 import ie.wit.witselfiecompetition.model.User;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -246,7 +248,6 @@ public class Helper {
     }
 
 
-
     /**This method to check if the given name is valid
      * and probably a real one
      * @param activity
@@ -273,36 +274,50 @@ public class Helper {
 
 
     /**
-     * This method checks with database
-     * looks for user id
-     * if it doesn't exist, that means it's the first login
+     * This method checks if this is the first login for user
+     * to the account and to the mobile phone
+     * check with sharedPreferences and database
+     * for user personal profile information
+     * and redirect to the proper activity accordingly
      * @param from
-     * @param one
-     * @param two
+     * @param act1
+     * @param act2
      * @return
      */
-    public static void firstLoginCheck(final Activity from, final Class one, final Class two) {
-        FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
-                equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            // check sharedPreferences in case user is using another phone
-                            if(!isSharedPreferencesUpdated(from)){
+    public static void firstLoginRedirect(final Activity from, final Class act1, final Class act2) {
+        // first check shared preferences for profile info
+        if(isSharedPreferencesUpdated(from)){
+            Helper.redirect(from, act1, false);
+        }
+        else { // check with database
+            FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
+                    equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // if found, update sharedPreferences and listen to the updates
+                            if (dataSnapshot.exists()) {
+                                String[] fields = {"fName", "lName", "gender", "image", "course"};
+                                SharedPreferencesListener spl =
+                                        new SharedPreferencesListener(fields, getCurrentUserSharedPreferences(from));
                                 copyUserInfoFromDatabaseToSharedPref(from);
+                                spl.invokeAfterUpdate(new Callable<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        Helper.redirect(from, act1, false);
+                                        return null;
+                                    }
+                                });
+                            } else {
+                                Helper.redirect(from, act2, false);
                             }
-                            Helper.redirect(from, one, false);
-                        } else {
-                            Helper.redirect(from, two, false);
                         }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(from, "Failed to verify log in", Toast.LENGTH_LONG);
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(from, "Failed to verify log in", Toast.LENGTH_LONG);
+                        }
+                    });
+        }
     }
 
 
@@ -311,9 +326,8 @@ public class Helper {
      * @param activity
      * @param map
      */
-    public static void addToSharedPreferences(Activity activity, Map<String,?> map) {
-        String name = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
+    public static boolean addToSharedPreferences(Activity activity, Map<String,?> map) {
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
         SharedPreferences.Editor editor = pref.edit();
 
         for (Map.Entry<String,?> entry : map.entrySet()) {
@@ -336,9 +350,9 @@ public class Helper {
                 editor.putBoolean(k, (Boolean)v).commit();
             }
         }
+        return true;
 
     }
-
 
 
     /**
@@ -411,8 +425,7 @@ public class Helper {
      * @param profileImage
      */
     public static void setPersonalImageAndName(Activity activity, TextView fullName, ImageView profileImage){
-        String name = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
 
         fullName.setText(pref.getString("fName", "") + " " + pref.getString("lName", ""));
         String gender = pref.getString("gender", "");
@@ -430,7 +443,6 @@ public class Helper {
             profileImage.setImageBitmap(decodeImage(encodedImage));
         }
     }
-
 
 
     /**
@@ -506,9 +518,9 @@ public class Helper {
    }
 
 
-
     /**
      * Encode bitmap to 64Based String
+     * and approximate destination image file size
      * @param activity
      * @param bitmap
      * @param dstSize
@@ -630,43 +642,15 @@ public class Helper {
 
 
     /**
-     * Ask for specific field's value and get it
-     * @param activity
-     * @param field
-     * @param type
-     * @return
-     */
-   public static Object getFromSharedPreferences(Activity activity, String field, String type){
-       String name = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
-       SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
-
-       switch (type){
-           case "String":
-               return pref.getString(field, null);
-           case "Integer":
-               return pref.getInt(field, 0);
-           case "Float":
-               return pref.getFloat(field, 0.f);
-           case "Long":
-               return pref.getLong(field, 0);
-           case "Boolean":
-               return pref.getBoolean(field, false);
-           default:
-               return null;
-       }
-   }
-
-
-    /**
      * Clear sharedPreferences on request
      * @param activity
      */
     public static void clearSharedPreferences(Activity activity){
-        String name = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        SharedPreferences pref = activity.getApplicationContext().getSharedPreferences(name, MODE_PRIVATE);
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear().apply();
     }
+
 
 
     public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity){
@@ -682,7 +666,7 @@ public class Helper {
                             byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
                             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             user.setImage(encodeImage(activity,bitmap, 100 ));
-                            Map<String, String> profileInfo = getInfoInMap(user);
+                            Map<String, String> profileInfo = getUserInfoInMap(user);
                             addToSharedPreferences(activity, profileInfo);
                         }
                     }
@@ -693,12 +677,11 @@ public class Helper {
     }
 
 
-
     /**
      * Return the user information in a map
      * @return
      */
-    public static Map<String,String> getInfoInMap(User user){
+    public static Map<String,String> getUserInfoInMap(User user){
         Map<String, String> profileData = new HashMap<>();
         profileData.put("fName", user.getfName());
         profileData.put("lName", user.getlName());
@@ -716,11 +699,23 @@ public class Helper {
      * @return
      */
     public static boolean isSharedPreferencesUpdated(Activity activity){
-        SharedPreferences pref = activity.getApplicationContext()
-                .getSharedPreferences(FirebaseAuth.getInstance().getUid(), MODE_PRIVATE);
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
 
         return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
                 !pref.getString("lName", "").isEmpty() &&
-                !pref.getString("gender", "").isEmpty();
+                !pref.getString("gender", "").isEmpty()
+                && !pref.getString("course", "").isEmpty();
     }
+
+
+    /**
+     * Get the sharedPreferences of the current user
+     * @param context
+     * @return
+     */
+    public static SharedPreferences getCurrentUserSharedPreferences(Context context){
+        return context.getApplicationContext().getSharedPreferences(
+                FirebaseAuth.getInstance().getCurrentUser().getUid(), MODE_PRIVATE);
+    }
+
 }

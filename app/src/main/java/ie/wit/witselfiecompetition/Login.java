@@ -36,6 +36,7 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Helper.setContentAccordingToOrientation(this);
 
         TextView forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
@@ -74,15 +75,16 @@ public class Login extends AppCompatActivity {
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
-                                    Helper.toggleProgressBar(signIn, signInProgressBar);
                                     if (task.isSuccessful()) { // if logged in successfully
+                                        // check if verified
                                         if(Helper.isLoggedInVerifiedUser(Login.this, true)){
-                                            Helper.firstLoginCheck(Login.this, Main.class, ProfileSetup.class);
+                                            Helper.firstLoginRedirect(Login.this, Main.class, ProfileSetup.class);
                                         }
                                     } else {
                                         Toast.makeText(Login.this,
                                                 "Could not sign in\n Incorrect Email or/and Password", Toast.LENGTH_LONG).show();
                                     }
+                                    Helper.toggleProgressBar(signIn, signInProgressBar);
                                 }
                             });
                 }

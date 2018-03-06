@@ -1,10 +1,8 @@
 package ie.wit.witselfiecompetition;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,17 +64,14 @@ public class Main extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        /************** Navigation Drawer *****************/
         View header = navigationView.getHeaderView(0);
         fullNameTextView = header.findViewById(R.id.fullNameTextView);
         profileImage =  header.findViewById(R.id.profileImage);
         profileImageProgressBar = header.findViewById(R.id.profileImageProgressBar);
 
-        if(Helper.isSharedPreferencesUpdated(Main.this)){
-            Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
-        }
-        else{
-            Helper.setPersonalImageAndNameFromDB(fullNameTextView, profileImage);
-        }
+        Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +89,6 @@ public class Main extends AppCompatActivity
                                 if(Helper.grantPermission(Main.this, PERMISSION_CODE)){
                                     takePicture();
                                 }
-
                                 break;
                             case "Upload Picture":
                                 uploadPicture();
@@ -103,13 +97,14 @@ public class Main extends AppCompatActivity
                         return true;
                     }
                 });
-
                 popup.show();
             }
 
         });
 
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     @Override
@@ -119,7 +114,7 @@ public class Main extends AppCompatActivity
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 takePicture();
             } else {
-                Toast.makeText(this, "No permission to read external storage.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No permission to write to external storage.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -134,20 +129,20 @@ public class Main extends AppCompatActivity
         File newDir = new File(newDirPath);
         if(!newDir.exists()){newDir.mkdirs();}
         String picName = "/selfie-" + new SimpleDateFormat( "ddMMyy-hhmmss.SSS").format(new Date()) + ".jpg";
+        File picFile = new File(newDir+picName);
 
         try {
-            File picfile = new File(newDir+picName);
-            picfile.createNewFile();
-            uri = Uri.fromFile(picfile);
+            picFile.createNewFile();
+            uri = Uri.fromFile(picFile);
             Intent camera = new Intent();
             camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
             camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(camera, PIC_CAPTURE_CODE);
         }
         catch (IOException e) {
+            picFile.delete();
             Helper.showMessage(Main.this,"Error!", "Could not save image", false);
         }
-
     }
 
 
@@ -236,8 +231,6 @@ public class Main extends AppCompatActivity
                     Map<String, String> originalInfo = new HashMap<>();
                     originalInfo.put("image", original);
                     Helper.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
-
-
                 }
             });
             thread.start();
@@ -246,10 +239,51 @@ public class Main extends AppCompatActivity
 
 
 
-    /**
-     * This method is invoked upon
-     * rotating the mobile phone
-     */
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_search) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_profile) {
+
+        } else if (id == R.id.nav_competition) {
+
+        } else if (id == R.id.nav_gallery) {
+
+        } else if (id == R.id.nav_settings) {
+
+        } else if (id == R.id.nav_signout) {
+            Helper.clearSharedPreferences(Main.this);
+            FirebaseAuth.getInstance().signOut();
+            Helper.redirect(Main.this, Login.class, false);
+            return true;
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -266,50 +300,11 @@ public class Main extends AppCompatActivity
 
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_profile) {
-
-        } else if (id == R.id.nav_competition) {
-
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_settings) {
-
-        } else if (id == R.id.nav_signout) {
-            FirebaseAuth.getInstance().signOut();
-            Helper.redirect(Main.this, Login.class, false);
-            return true;
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 }

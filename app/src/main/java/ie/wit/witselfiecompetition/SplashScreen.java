@@ -28,6 +28,7 @@ public class SplashScreen extends AppCompatActivity {
 
         // check the phone orientation and set layout accordingly
         Helper.setContentAccordingToOrientation(this);
+
         // post event handler to move from current splash screen
         // activity to the next activity
         new Handler().postDelayed(new Runnable(){
@@ -36,7 +37,7 @@ public class SplashScreen extends AppCompatActivity {
                 if(Helper.hasNetworkConnection(SplashScreen.this)) {
                     // check if user already logged in and verified
                     if (Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
-                        Helper.firstLoginCheck(SplashScreen.this, Main.class, Login.class);
+                        Helper.firstLoginRedirect(SplashScreen.this, Main.class, Login.class);
                     } else { // go to login activity
                         Helper.redirect(SplashScreen.this, Login.class, false);
                     }

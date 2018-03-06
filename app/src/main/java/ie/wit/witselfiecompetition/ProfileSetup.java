@@ -150,7 +150,7 @@ public class ProfileSetup extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            Map<String, String> profileData = Helper.getInfoInMap(user);
+                            Map<String, String> profileData = Helper.getUserInfoInMap(user);
                             Helper.addToSharedPreferences(ProfileSetup.this, profileData);
                             Helper.redirect(ProfileSetup.this, Main.class, false);
                         }
