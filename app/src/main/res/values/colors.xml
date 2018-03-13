@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#083d6b</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#b7acc9</color>
+    <color name="colorAccent">#8b7ba4</color>
     <color name="background">#083d6b</color>
     <color name="progressBarColor">#96edda</color>
     <color name="splashTitle">#ffffff</color>
@@ -15,4 +15,5 @@
     <color name="alertDialogText">#afafb1</color>
     <color name="darkGrey">#212121</color>
     <color name="colorMain">#c8cfd6</color>
+    <color name="colorBlack">#000000</color>
 </resources>

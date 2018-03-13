@@ -16,14 +16,14 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-        <ImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        <ImageView
             android:id="@+id/profileImage"
             android:layout_width="@dimen/_73sdp"
             android:layout_height="@dimen/_73sdp"
             android:scaleType="centerCrop"
             android:adjustViewBounds ="true" />
 
-                <ProgressBar xmlns:app="http://schemas.android.com/apk/res-auto"
+                <ProgressBar
                     android:id="@+id/profileImageProgressBar"
                     android:layout_width="@dimen/_40sdp"
                     android:layout_height="@dimen/_40sdp"
@@ -46,44 +46,3 @@
 
 
 </LinearLayout>
-
-<!--
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/picMenuOptions"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_58sdp"
-            android:layout_marginTop="@dimen/_25sdp"
-            android:layout_marginLeft="@dimen/_25sdp"
-            android:background="@drawable/border_shadow"
-            android:gravity="center|center"
-            android:orientation="vertical"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark">
-
-            <TextView
-                android:id="@+id/takePicTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/_3sdp"
-                android:text="@string/take_pic"
-                android:textColor="@color/darkGrey"
-                android:textSize="@dimen/_12ssp" />
-
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="2dp"
-                android:background="#c0c0c0"
-                android:layout_marginTop="@dimen/_5sdp"
-                android:layout_marginBottom="@dimen/_5sdp"/>
-
-            <TextView
-                android:id="@+id/uploadPicTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/darkGrey"
-                android:textSize="@dimen/_12ssp"
-                android:paddingLeft="@dimen/_3sdp"
-                android:text="@string/upload_pic" />
-
-        </LinearLayout>
-        -->

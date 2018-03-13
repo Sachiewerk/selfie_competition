@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ie.wit.witselfiecompetition">
+    package="ie.wit.witselfiecompetition"
+    android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -15,7 +16,6 @@
         <activity
             android:name=".SplashScreen"
             android:theme="@style/WitTheme.SplashScreen"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,8 +32,8 @@
             android:name=".ProfileSetup" />
         <activity
             android:name=".Main"
-            android:label="@string/title_activity_main"
-            android:theme="@style/WitTheme.NoActionBar"></activity>
+            android:theme="@style/WitTheme.NoActionBar"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

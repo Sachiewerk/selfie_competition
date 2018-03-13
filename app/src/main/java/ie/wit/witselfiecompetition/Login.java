@@ -67,7 +67,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(isValidLoginForm()) {
-                    Helper.toggleProgressBar(signIn, signInProgressBar);
+                    Helper.toggleVisibility(signIn, signInProgressBar);
                     String email = emailEditText.getText().toString().trim();
                     String password  = passwordEditText.getText().toString().trim();
                     // attempt to sign in
@@ -84,7 +84,7 @@ public class Login extends AppCompatActivity {
                                         Toast.makeText(Login.this,
                                                 "Could not sign in\n Incorrect Email or/and Password", Toast.LENGTH_LONG).show();
                                     }
-                                    Helper.toggleProgressBar(signIn, signInProgressBar);
+                                    Helper.toggleVisibility(signIn, signInProgressBar);
                                 }
                             });
                 }

@@ -1,6 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
     <style name="WitTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowBackground">@color/background</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -20,6 +19,20 @@
         <item name="android:textColorPrimary">@color/alertDialogText</item>
         <item name="android:windowBackground">@drawable/custom_alert_dialog</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="progressBarDialog" parent="Theme.AppCompat.Dialog">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/darkGrey</item>
+    </style>
+
+    <style name="imageFrameDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowIsFloating">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/darkGrey</item>
+        <item name="android:padding">0.5dp</item>
     </style>
 
     <style name="WitTheme.NoActionBar">

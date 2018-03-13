@@ -5,11 +5,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,11 +28,9 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class Main extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -39,19 +38,18 @@ public class Main extends AppCompatActivity
     private final int PERMISSION_CODE = 1;
     private final int PIC_CAPTURE_CODE = 2;
     private final int LOAD_IMAGE_CODE = 3;
-    private TextView fullNameTextView;
     private ImageView profileImage;
     private ProgressBar profileImageProgressBar;
     private Uri uri;
+    private int lastSelectedItem;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
         // .setAction("Action", null).show();
 
@@ -61,13 +59,16 @@ public class Main extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
         /************** Navigation Drawer *****************/
         View header = navigationView.getHeaderView(0);
-        fullNameTextView = header.findViewById(R.id.fullNameTextView);
+        navigationView.setCheckedItem(R.id.nav_profile);
+        navigationView.getMenu().performIdentifierAction(R.id.nav_profile, 0);
+
+        TextView fullNameTextView = header.findViewById(R.id.fullNameTextView);
         profileImage =  header.findViewById(R.id.profileImage);
         profileImageProgressBar = header.findViewById(R.id.profileImageProgressBar);
 
@@ -87,11 +88,11 @@ public class Main extends AppCompatActivity
                                 // otherwise, a permission request is sent and should be handled
                                 // in the onRequestPermissionsResult() method
                                 if(Helper.grantPermission(Main.this, PERMISSION_CODE)){
-                                    takePicture();
+                                    Helper.takePicture(Main.this, uri, PIC_CAPTURE_CODE);
                                 }
                                 break;
                             case "Upload Picture":
-                                uploadPicture();
+                                Helper.uploadPicture(Main.this, LOAD_IMAGE_CODE);
                                 break;
                         }
                         return true;
@@ -99,6 +100,31 @@ public class Main extends AppCompatActivity
                 });
                 popup.show();
             }
+
+        });
+
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+
 
         });
 
@@ -112,50 +138,13 @@ public class Main extends AppCompatActivity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                takePicture();
+                Helper.takePicture(Main.this, uri, PIC_CAPTURE_CODE);
             } else {
                 Toast.makeText(this, "No permission to write to external storage.", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-
-    /**
-     * Take picture using the camera
-     */
-    public void takePicture() {
-        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-        String newDirPath = picturesDir + "/witSelfieCompetition/";
-        File newDir = new File(newDirPath);
-        if(!newDir.exists()){newDir.mkdirs();}
-        String picName = "/selfie-" + new SimpleDateFormat( "ddMMyy-hhmmss.SSS").format(new Date()) + ".jpg";
-        File picFile = new File(newDir+picName);
-
-        try {
-            picFile.createNewFile();
-            uri = Uri.fromFile(picFile);
-            Intent camera = new Intent();
-            camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-            camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            startActivityForResult(camera, PIC_CAPTURE_CODE);
-        }
-        catch (IOException e) {
-            picFile.delete();
-            Helper.showMessage(Main.this,"Error!", "Could not save image", false);
-        }
-    }
-
-
-    /**
-     * Upload picture from gallery
-     */
-    public void uploadPicture() {
-        Intent gallery = new Intent();
-        gallery.setType("image/*");
-        gallery.setAction(Intent.ACTION_GET_CONTENT);
-        gallery.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(gallery, LOAD_IMAGE_CODE);
-    }
 
 
     @Override
@@ -170,19 +159,19 @@ public class Main extends AppCompatActivity
         }
         if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
-            Helper.toggleProgressBar(profileImage, profileImageProgressBar);
+            Helper.toggleVisibility(profileImage, profileImageProgressBar);
 
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     while(pic.length()==0){
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(50);
                         } catch (Exception e) {
                             e.getLocalizedMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(Main.this,uri, 100);
+                    final String thumbnail = Helper.encodeImage(Main.this,uri, 15);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(Main.this,thumbnailInfo);
@@ -190,13 +179,14 @@ public class Main extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            refreshProfilePicFrag();
                             profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
-                            Helper.toggleProgressBar(profileImage, profileImageProgressBar);
+                            Helper.toggleVisibility(profileImage, profileImageProgressBar);
 
                         }
                     });
 
-                    final String databaseImg = Helper.encodeImage(Main.this,uri, 1000);
+                    final String databaseImg = Helper.encodeImage(Main.this,uri, 1200);
                     Map<String, String> databaseImgInfo = new HashMap<>();
                     databaseImgInfo.put("image", databaseImg);
                     Helper.addToDatabase(Main.this,"Users", databaseImgInfo, "Failed to add image to database!");
@@ -206,28 +196,31 @@ public class Main extends AppCompatActivity
             thread.start();
         }
 
-        /**** TAKING PICTURE USING CAMERA****/
+        /**** UPLOADING PICTURE FROM GALLERY ****/
         if (requestCode == LOAD_IMAGE_CODE && resultCode == RESULT_OK) {
             final Uri imageUri = data.getData();
-            Helper.toggleProgressBar(profileImage, profileImageProgressBar);
+            Helper.toggleVisibility(profileImage, profileImageProgressBar);
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 100); //500 x 600
+                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 15);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
+                    Helper.addToSharedPreferences(Main.this,thumbnailInfo);
+
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            refreshProfilePicFrag();
                             profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
-                            Helper.toggleProgressBar(profileImage, profileImageProgressBar);
+                            Helper.toggleVisibility(profileImage, profileImageProgressBar);
                         }
                     });
 
-                    Helper.addToSharedPreferences(Main.this,thumbnailInfo);
 
-                    final String original = Helper.encodeImage(Main.this,imageUri, 1000);
+
+                    final String original = Helper.encodeImage(Main.this,imageUri, 1200);
                     Map<String, String> originalInfo = new HashMap<>();
                     originalInfo.put("image", original);
                     Helper.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
@@ -245,12 +238,8 @@ public class Main extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
             return true;
         }
@@ -258,36 +247,62 @@ public class Main extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_profile) {
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = null;
+        String fragTag = null;
 
-        } else if (id == R.id.nav_competition) {
+        final int id = item.getItemId();
 
-        } else if (id == R.id.nav_gallery) {
+        if (id != lastSelectedItem) {
 
-        } else if (id == R.id.nav_settings) {
+            if (id == R.id.nav_profile) {
+                fragTag = "fragmentProfile";
+                fragment = fragmentManager.findFragmentByTag(fragTag);
+                if(fragment == null){fragment = new ProfileFragment();}
+            } else if (id == R.id.nav_competition) {
 
-        } else if (id == R.id.nav_signout) {
-            Helper.clearSharedPreferences(Main.this);
-            FirebaseAuth.getInstance().signOut();
-            Helper.redirect(Main.this, Login.class, false);
-            return true;
+            } else if (id == R.id.nav_gallery) {
+
+            } else if (id == R.id.nav_settings) {
+                fragTag = "fragmentSettings";
+                fragment = fragmentManager.findFragmentByTag(fragTag);
+                if(fragment == null){fragment = new SettingsFragment();}
+
+            } else if (id == R.id.nav_signout) {
+                FirebaseAuth.getInstance().signOut();
+                Helper.redirect(Main.this, Login.class, false);
+                return true;
+            }
+
+            final String finalFragTag = fragTag;
+            final Fragment finalFragment = fragment;
+
+            // to reduce the hangs when moving between fragments
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    fragmentManager.beginTransaction().replace(R.id.content_area, finalFragment, finalFragTag)
+                            .setTransition(FragmentTransaction.TRANSIT_NONE)
+                            .addToBackStack(finalFragTag)
+                            .commit();
+
+                    lastSelectedItem = id;
+
+                }
+            }, 300);
+
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
 
     @Override
     public void onBackPressed() {
@@ -300,6 +315,15 @@ public class Main extends AppCompatActivity
 
     }
 
+    /**
+     * This method is invoked upon
+     * rotating the mobile phone
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -307,4 +331,22 @@ public class Main extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
+
+
+    /**
+     * Refresh the profile picture in the profile fragment
+     * when user changes it from the navigation header
+     */
+    private void refreshProfilePicFrag(){
+        if(navigationView.getMenu().findItem(R.id.nav_profile).isChecked()){
+            ImageView profilePic = getSupportFragmentManager()
+                    .findFragmentByTag("fragmentProfile")
+                    .getView().findViewById(R.id.profilePic);
+            profilePic.setImageBitmap(
+                    Helper.decodeImage(
+                            Helper.getCurrentUserSharedPreferences(Main.this).getString("image", "")));
+        }
+    }
+
 }

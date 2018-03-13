@@ -76,7 +76,7 @@ public class ProfileSetup extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(isValidInput()){
-                    Helper.toggleProgressBar(joinButton, profileSetupProgressBar);
+                    Helper.toggleVisibility(joinButton, profileSetupProgressBar);
                     String fName = firstNameEditText.getText().toString().trim();
                     String lName = lastNameEditText.getText().toString().trim();
                     User user = new User(fName, lName, gender, course, "", "" );
@@ -157,7 +157,7 @@ public class ProfileSetup extends AppCompatActivity {
 
                         else{
                             Toast.makeText(ProfileSetup.this, "Failed to add user", Toast.LENGTH_SHORT).show();
-                            Helper.toggleProgressBar(joinButton, profileSetupProgressBar);
+                            Helper.toggleVisibility(joinButton, profileSetupProgressBar);
                         }
                     }
                 });

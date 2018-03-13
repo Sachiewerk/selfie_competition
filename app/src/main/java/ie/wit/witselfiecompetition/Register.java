@@ -69,7 +69,7 @@ public class Register extends AppCompatActivity {
      * @param password
      */
     public void registerNewEmail(final String email, String password){
-        Helper.toggleProgressBar(register, registerProgressBar);
+        Helper.toggleVisibility(register, registerProgressBar);
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.trim(), password.trim())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -81,7 +81,7 @@ public class Register extends AppCompatActivity {
                         else if (!task.isSuccessful()) {
                             Toast.makeText(Register.this, "Unable to Register, ", Toast.LENGTH_SHORT).show();
                         }
-                        Helper.toggleProgressBar(register, registerProgressBar);
+                        Helper.toggleVisibility(register, registerProgressBar);
                     }
                 });
     }

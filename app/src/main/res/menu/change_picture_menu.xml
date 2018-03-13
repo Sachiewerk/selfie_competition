@@ -1,11 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/border_shadow">
 
     <item
         android:id="@+id/takePictureItem"
-        android:title="@string/take_pic" />
+        android:title="@string/take_pic"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/uploadPicItem"
-        android:title="@string/upload_pic" />
+        android:title="@string/upload_pic"
+        app:showAsAction="ifRoom" />
 </menu>

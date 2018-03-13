@@ -42,7 +42,7 @@ public class ForgotPassword extends Activity {
                      }
                 }
                 else{
-                    Helper.hideSoftKeyboard(ForgotPassword.this);
+                    Helper.hideSoftKeyboard(ForgotPassword.this, view);
                     Helper.showMessage(ForgotPassword.this, "Error",
                             "No Internet Connection!", false);
                 }
@@ -57,7 +57,7 @@ public class ForgotPassword extends Activity {
      * @param email
      */
     private void resetPassword(String email){
-        Helper.toggleProgressBar(sendPasswordButton, forgotPasswordProgressBar);
+        Helper.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
         FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -68,11 +68,11 @@ public class ForgotPassword extends Activity {
                                     "Reset password link has been sent to your email", true);
                         }
                         else {
-                            Helper.hideSoftKeyboard(ForgotPassword.this);
+                            Helper.hideSoftKeyboard(ForgotPassword.this, new View(ForgotPassword.this));
                             Helper.showMessage(ForgotPassword.this, "",
                                     "Unable to send reset password link", true);
                         }
-                        Helper.toggleProgressBar(sendPasswordButton, forgotPasswordProgressBar);
+                        Helper.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
                     }
                 });
     }

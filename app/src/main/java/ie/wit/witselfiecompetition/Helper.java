@@ -2,19 +2,25 @@ package ie.wit.witselfiecompetition;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
@@ -22,11 +28,11 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,8 +48,12 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -185,20 +195,40 @@ public class Helper {
 
 
     /**
-     * Toggle visibility between given view and progressbar
-     * @param view
-     * @param progressBar
+     * Toggle visibility between two views
+     * visible and invisible
+     * @param view1
+     * @param view2
      */
-    public static void toggleProgressBar(View view, ProgressBar progressBar){
-        if(view.getVisibility() == View.INVISIBLE){
-            view.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.INVISIBLE);
+    public static void toggleVisibility(View view1, View view2){
+        if(view1.getVisibility() == View.INVISIBLE){
+            view1.setVisibility(View.VISIBLE);
+            view2.setVisibility(View.INVISIBLE);
         }
         else {
-            view.setVisibility(View.INVISIBLE);
-            progressBar.setVisibility(View.VISIBLE);
+            view1.setVisibility(View.INVISIBLE);
+            view2.setVisibility(View.VISIBLE);
         }
     }
+
+
+    /**
+     * Toggle Vsibility between tow views
+     * visible and gone
+     * @param view1
+     * @param view2
+     */
+    public static void toggleExistence(View view1, View view2){
+        if(view1.getVisibility() == View.GONE){
+            view1.setVisibility(View.VISIBLE);
+            view2.setVisibility(View.GONE);
+        }
+        else {
+            view1.setVisibility(View.GONE);
+            view2.setVisibility(View.VISIBLE);
+        }
+    }
+
 
 
     /**
@@ -218,15 +248,6 @@ public class Helper {
         activity.startActivity(intent);
     }
 
-
-    /**
-     * This method to hide the soft keyboard on request
-     * @param activity
-     */
-    public static void hideSoftKeyboard(Activity activity){
-        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(new View(activity).getWindowToken(), 0);
-    }
 
 
     /**
@@ -269,8 +290,48 @@ public class Helper {
                 return false;
             }
         }
+
+        if(!name.contains(" ")){
+            Toast.makeText(activity, "Please insert full name ",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         return true;
     }
+
+
+    /**This method to check if the given name is valid
+     * and probably a real one
+     * @param activity
+     * @param textView
+     * @param field
+     * @return
+     */
+    public static boolean isValidNameToast(Activity activity, TextView textView, String field){
+        String name = textView.getText().toString().trim();
+        if(name.isEmpty()){
+           Toast.makeText(activity, field + " cannot be empty", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        for(char c : name.toCharArray()){
+            if(!Character.isLetter(c) && !Character.isSpaceChar(c)){
+                Toast.makeText(activity, "Please insert your real "+field,
+                        Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        if(!name.contains(" ")){
+            Toast.makeText(activity, "Please insert full name ",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+
 
 
     /**
@@ -290,6 +351,7 @@ public class Helper {
             Helper.redirect(from, act1, false);
         }
         else { // check with database
+
             FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
                     equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -321,6 +383,7 @@ public class Helper {
     }
 
 
+
     /**
      * This method to add to SharedPreferences file
      * @param activity
@@ -350,6 +413,41 @@ public class Helper {
                 editor.putBoolean(k, (Boolean)v).commit();
             }
         }
+        return true;
+
+    }
+
+
+
+    /**
+     * This method to add to SharedPreferences file
+     * @param activity
+     * @param k
+     * @param v
+     */
+    public static boolean addToSharedPreferences(Activity activity, String k , Object v) {
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
+        SharedPreferences.Editor editor = pref.edit();
+
+        if(v instanceof String){
+            editor.putString(k,(String)v).apply();
+        }
+        else if (v instanceof Integer){
+            editor.putInt(k, (Integer)v).apply();
+        }
+        else if (v instanceof Float){
+            editor.putFloat(k, (Float)v).apply();
+        }
+        else if (v instanceof Long){
+            editor.putLong(k, (Long)v).apply();
+        }
+        else if (v instanceof Boolean){
+            editor.putBoolean(k, (Boolean)v).apply();
+        }
+        else {
+            return false;
+        }
+
         return true;
 
     }
@@ -408,7 +506,7 @@ public class Helper {
                                 profileImage.setImageBitmap(bitmap);
                             }
                         }catch (Exception e){
-                            Log.e("Set Profile", e.getMessage());
+                            Log.e("Set ProfileFragment", e.getMessage());
                         }
                     }
 
@@ -445,6 +543,7 @@ public class Helper {
     }
 
 
+
     /**
      * Add a given data to database
      * data in format of map
@@ -473,6 +572,99 @@ public class Helper {
             });
         }
     }
+
+
+    /**
+     * Add a given data to database
+     * data in format single key/value
+     * @param activity
+     * @param node
+     * @param field
+     * @param value
+     * @param errorMessage
+     */
+    public static void addToDatabase(final Activity activity, String node, String field, String value, final String errorMessage){
+        FirebaseDatabase.getInstance().getReference().child(node)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(field).setValue(value).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (!task.isSuccessful()) {
+                        if(errorMessage!=null){
+                            Toast.makeText(activity, errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            });
+    }
+
+
+    /**
+     * Add a single a value to a filed in
+     * the database and call a method onSuccess
+     * and onFailure
+     * @param node
+     * @param field
+     * @param value
+     * @param onSuccess
+     * @param onFailure
+     */
+    public static void addToDatabase(String node, String field, String value,
+                                     @Nullable final Callable<Void> onSuccess, @Nullable final Callable<Void> onFailure ){
+        FirebaseDatabase.getInstance().getReference().child(node)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(field).setValue(value).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    try{
+                        onSuccess.call();
+                    }catch (Exception e){}
+                }
+                else{
+                    try{
+                        onFailure.call();
+                    }catch (Exception e){}
+                }
+
+            }
+        });
+    }
+
+
+    /**
+     * Add data from map to the database
+     * and call a method onSuccess
+     * and onFailure
+     * @param node
+     * @param data
+     * @param onSuccess
+     * @param onFailure
+     */
+    public static void addToDatabase(String node, Map<String, Object> data,
+                                   @Nullable final Callable<Void> onSuccess, @Nullable final Callable<Void> onFailure ) {
+        FirebaseDatabase.getInstance().getReference().child(node)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).updateChildren(data).
+                addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            try {
+                                onSuccess.call();
+                            } catch (Exception e) {
+                                Log.v("Tag", e.getMessage());
+                            }
+                        } else {
+                            try {
+                                onFailure.call();
+                            } catch (Exception e) {
+                                Log.v("Tag", e.getMessage());
+                            }
+                        }
+                    }
+                });
+    }
+
 
 
     /**
@@ -605,7 +797,7 @@ public class Helper {
 
 
     /**
-     * Change cover photo in the settings
+     * Change cover photo in the fragment_profile
      * upon user's request
      * @param color
      * @param header
@@ -716,6 +908,123 @@ public class Helper {
     public static SharedPreferences getCurrentUserSharedPreferences(Context context){
         return context.getApplicationContext().getSharedPreferences(
                 FirebaseAuth.getInstance().getCurrentUser().getUid(), MODE_PRIVATE);
+    }
+
+
+    /**
+     * Show Progressbar on the top of the page
+     * @param activity
+     */
+    public static Dialog onTopProgressBar (Activity activity){
+        Dialog topDialog = new Dialog(activity, R.style.progressBarDialog);
+        topDialog.setContentView(R.layout.progressbar_dialog);
+        topDialog.setCanceledOnTouchOutside(false);
+        topDialog.setCancelable(false);
+        topDialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        topDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        return topDialog;
+    }
+
+
+    /**
+     * Show Soft Keyboard
+     * @param activity
+     * @param view
+     */
+    public static void showSoftKeyboard(Activity activity, View view){
+        ((InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE))
+                .showSoftInput(view, InputMethodManager.SHOW_FORCED);
+    }
+
+
+    /**
+     * Hide Soft Keyboard
+     * @param activity
+     * @param view
+     */
+    public static void hideSoftKeyboard(Activity activity, View view){
+        ((InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+
+    /**
+     * Temporarily Disable Phone Rotation
+     * @param activity
+     */
+    public static void disableOrientation(Activity activity){
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+    }
+
+
+    /**
+     * Enable Phone Rotation
+     * @param activity
+     */
+    public static void enableOrientation(Activity activity){
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    }
+
+
+    /**
+     * Get Mobile Screen Height
+     * @return
+     */
+    public static int getScreenHeight(){
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
+
+    /**
+     * Get Mobile Screen Width
+     * @return
+     */
+    public static int getScreenWidth(){
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+
+    /**
+     * Take picture using the camera of mobile phone
+     * @param activity
+     * @param uri
+     * @param PIC_CAPTURE_CODE
+     */
+    public static void takePicture(Activity activity, Uri uri, int PIC_CAPTURE_CODE){
+        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+        String newDirPath = picturesDir + "/witSelfieCompetition/";
+        File newDir = new File(newDirPath);
+        if(!newDir.exists()){newDir.mkdirs();}
+        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+        File picFile = new File(newDir+picName);
+
+        try {
+            picFile.createNewFile();
+            uri = Uri.fromFile(picFile);
+            Intent camera = new Intent();
+            camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+            camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            activity.startActivityForResult(camera, PIC_CAPTURE_CODE);
+        }
+        catch (IOException e) {
+            picFile.delete();
+            Helper.showMessage(activity,"Error!", "Could not save image", false);
+        }
+
+    }
+
+
+    /**
+     * upload image from phone gallery
+     * @param activity
+     * @param LOAD_IMAGE_CODE
+     */
+    public static void uploadPicture(Activity activity, int LOAD_IMAGE_CODE) {
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        gallery.addCategory(Intent.CATEGORY_OPENABLE);
+        activity.startActivityForResult(gallery, LOAD_IMAGE_CODE);
     }
 
 }
