@@ -1,6 +1,6 @@
 package ie.wit.witselfiecompetition;
 
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,10 +49,10 @@ public class Main extends AppCompatActivity
     private final int PIC_CAPTURE_CODE = 2;
     private final int LOAD_IMAGE_CODE = 3;
     private ImageView profileImage;
-    private ProgressBar profileImageProgressBar;
     private Uri uri;
     private int lastSelectedItem;
     private NavigationView navigationView;
+    private Dialog progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +70,7 @@ public class Main extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        progressBar = Helper.onTopProgressBar(this);
         /************** Navigation Drawer *****************/
         View header = navigationView.getHeaderView(0);
         navigationView.setCheckedItem(R.id.nav_profile);
@@ -81,7 +82,6 @@ public class Main extends AppCompatActivity
 
         TextView fullNameTextView = header.findViewById(R.id.fullNameTextView);
         profileImage =  header.findViewById(R.id.profileImage);
-        profileImageProgressBar = header.findViewById(R.id.profileImageProgressBar);
 
         Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
 
@@ -172,7 +172,8 @@ public class Main extends AppCompatActivity
         }
         if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
-            Helper.toggleVisibility(profileImage, profileImageProgressBar);
+            profileImage.setVisibility(View.INVISIBLE);
+            progressBar.show();
 
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -194,7 +195,8 @@ public class Main extends AppCompatActivity
                         public void run() {
                             refreshProfilePicFrag();
                             profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
-                            Helper.toggleVisibility(profileImage, profileImageProgressBar);
+                            profileImage.setVisibility(View.VISIBLE);
+                            progressBar.dismiss();
 
                         }
                     });
@@ -212,7 +214,8 @@ public class Main extends AppCompatActivity
         /**** UPLOADING PICTURE FROM GALLERY ****/
         if (requestCode == LOAD_IMAGE_CODE && resultCode == RESULT_OK) {
             final Uri imageUri = data.getData();
-            Helper.toggleVisibility(profileImage, profileImageProgressBar);
+            profileImage.setVisibility(View.INVISIBLE);
+            progressBar.show();
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -227,7 +230,8 @@ public class Main extends AppCompatActivity
                         public void run() {
                             refreshProfilePicFrag();
                             profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
-                            Helper.toggleVisibility(profileImage, profileImageProgressBar);
+                            profileImage.setVisibility(View.VISIBLE);
+                            progressBar.dismiss();
                         }
                     });
 
@@ -376,8 +380,8 @@ public class Main extends AppCompatActivity
         String newDirPath = picturesDir + "/witSelfieCompetition/";
         File newDir = new File(newDirPath);
         if(!newDir.exists()){newDir.mkdirs();}
-        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
-        File picFile = new File(newDir+picName);
+        String capturedImageName = String.format("selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+        File picFile = new File(newDir+capturedImageName);
 
         try {
             picFile.createNewFile();

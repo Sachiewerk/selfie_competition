@@ -101,13 +101,17 @@ public class SettingsFragment extends Fragment {
      * Fill Views With Required Info
      */
     private void fillWithInfo(){
-        colors = new String[]{"Blue", "Purple", "Green", "Cyan", "Orange", "Red", "Grey", "Yellow"};
+        colors = new String[]{"", "Blue", "Purple", "Green", "Cyan", "Orange", "Red", "Grey", "Yellow"};
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, colors);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, colors){
+            @Override
+            public boolean isEnabled(int position){return position != 0;}
+        };
+
         headerColors.setAdapter(adapter);
         // clear initial selection
-        int initialSelectedPosition=headerColors.getSelectedItemPosition();
+        int initialSelectedPosition = headerColors.getSelectedItemPosition();
         headerColors.setSelection(initialSelectedPosition, false);
         int color = Helper.getThemeColor(getActivity());
         for(GradientDrawable draw : drawable){
@@ -127,12 +131,14 @@ public class SettingsFragment extends Fragment {
         headerColors.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Helper.addToSharedPreferences(getActivity(), "color", colors[i]);
-                Helper.changeHeaderImageTheme(colors[i], header, toolBar);
-                int color = Helper.getThemeColor(getActivity());
-                for(GradientDrawable draw : drawable){
-                    draw.setColor(color);
-
+                String color = colors[i];
+                if(!color.isEmpty()) {
+                    Helper.addToSharedPreferences(getActivity(), "color", colors[i]);
+                    Helper.changeHeaderImageTheme(colors[i], header, toolBar);
+                    int colorValue = Helper.getThemeColor(getActivity());
+                    for (GradientDrawable draw : drawable) {
+                        draw.setColor(colorValue);
+                    }
                 }
             }
             @Override

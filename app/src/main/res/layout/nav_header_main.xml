@@ -22,14 +22,6 @@
             android:scaleType="centerCrop"
             android:adjustViewBounds ="true" />
 
-                <ProgressBar
-                    android:id="@+id/profileImageProgressBar"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:layout_marginTop="@dimen/_17sdp"
-                    android:layout_marginLeft="@dimen/_17sdp"
-                    android:visibility="invisible" />
-
                 <TextView
                     android:id="@+id/fullNameTextView"
                     android:layout_width="wrap_content"

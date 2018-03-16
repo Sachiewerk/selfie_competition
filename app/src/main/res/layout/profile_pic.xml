@@ -21,14 +21,6 @@
         android:layout_centerInParent="true"
         android:adjustViewBounds ="true" />
 
-        <ProgressBar
-            android:id="@+id/popupProfilePicProgressBar"
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar"
-            android:layout_width="@dimen/_100sdp"
-            android:layout_height="@dimen/_100sdp"
-            android:layout_centerInParent="true"
-            tools:visibility="visible" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

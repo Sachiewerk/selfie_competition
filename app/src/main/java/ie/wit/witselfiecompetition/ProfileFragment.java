@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +70,6 @@ public class ProfileFragment extends Fragment {
     private LinearLayout changesControlFullName, changesControlCourse, changesControlGender, changesControlAboutMe;
     private String name, course, gender, aboutMe, image;
     private Dialog progressbar, imageDialog ;
-    private ProgressBar popupProfilePicProgressBar;
     private Uri uri;
 
 
@@ -238,9 +237,7 @@ public class ProfileFragment extends Fragment {
                 Helper.toggleExistence(courseTextView, coursesMenu);
                 Helper.toggleExistence(courseEditIcon, changesControlCourse);
                 List<String> courses = new ArrayList<String>();
-                for (String course : Course.courses()) {
-                    courses.add(course);
-                }
+                courses.addAll(Arrays.asList(Course.courses()));
                 String currentCourse = courseTextView.getText().toString();
                 int index = courses.indexOf(currentCourse);
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, courses);
@@ -390,7 +387,6 @@ public class ProfileFragment extends Fragment {
                 imageDialog = new Dialog(getActivity(), R.style.imageFrameDialog);
                 imageDialog.setContentView(R.layout.profile_pic);
                 popupProfilePic = imageDialog.findViewById(R.id.popupProfilePic);
-                popupProfilePicProgressBar = imageDialog.findViewById(R.id.popupProfilePicProgressBar);
 
                 popupProfilePic.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -429,7 +425,7 @@ public class ProfileFragment extends Fragment {
                             popupProfilePic.setImageResource(R.drawable.female);
                             break;
                     }
-                    popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
+                    progressbar.dismiss();
                 }
                 else {
                     popupProfilePic.setImageBitmap(Helper.decodeImage(encodedImage));
@@ -442,7 +438,7 @@ public class ProfileFragment extends Fragment {
                         public Void call() throws Exception {
                             String imageFromDB = doWithDatabase.getValue("image").toString();
                             popupProfilePic.setImageBitmap(Helper.decodeImage(imageFromDB));
-                            popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
+                            progressbar.dismiss();
                             return null;
                         }
                     };
@@ -514,7 +510,7 @@ public class ProfileFragment extends Fragment {
         }
         else if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
-            popupProfilePicProgressBar.setVisibility(View.VISIBLE);
+            progressbar.show();
 
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -545,7 +541,7 @@ public class ProfileFragment extends Fragment {
                             databaseImgInfo.put("image", databaseImg);
                             Helper.addToDatabase(getActivity(),"Users", databaseImgInfo, "Failed to add image to database!");
                             popupProfilePic.setImageBitmap(Helper.decodeImage(databaseImg));
-                            popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
+                            progressbar.dismiss();
                         }
                     });
                 }
@@ -556,7 +552,7 @@ public class ProfileFragment extends Fragment {
         /**** UPLOADING PICTURE FROM GALLERY ****/
         else if (requestCode == LOAD_IMAGE_CODE && resultCode == RESULT_OK) {
             final Uri imageUri = data.getData();
-            popupProfilePicProgressBar.setVisibility(View.VISIBLE);
+            progressbar.show();
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -582,7 +578,7 @@ public class ProfileFragment extends Fragment {
                             Helper.addToDatabase(getActivity(),"Users", originalInfo, "Failed to add image to database!");
 
                             popupProfilePic.setImageBitmap(Helper.decodeImage(databaseImg));
-                            popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
+                            progressbar.dismiss();
                         }
                     });
                 }

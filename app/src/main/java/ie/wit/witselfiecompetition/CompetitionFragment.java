@@ -34,6 +34,6 @@ public class CompetitionFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("Profile");
+        getActivity().setTitle("Competition");
     }
 }
