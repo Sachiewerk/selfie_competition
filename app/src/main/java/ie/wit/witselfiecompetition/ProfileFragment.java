@@ -3,7 +3,6 @@ package ie.wit.witselfiecompetition;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,12 +38,19 @@ import ie.wit.witselfiecompetition.model.Course;
 import ie.wit.witselfiecompetition.model.DoWithDatabase;
 import ie.wit.witselfiecompetition.model.DoWithDatabaseException;
 import ie.wit.witselfiecompetition.model.EditTextViewListener;
+import ie.wit.witselfiecompetition.model.Helper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 
+/**
+ * This Fragment for User's Profile
+ * It shows editable user's information
+ * and profile picture
+ */
 public class ProfileFragment extends Fragment {
+
     private static final int PERMISSION_CODE = 1;
     private static final int PIC_CAPTURE_CODE = 2;
     private static final int LOAD_IMAGE_CODE = 3;
@@ -80,6 +86,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        getActivity().setTitle("Profile");
         loadView();
         fillView();
         addEditIconListeners();
@@ -125,7 +132,6 @@ public class ProfileFragment extends Fragment {
      * Fill view with exist data
      */
     private void fillView(){
-        getActivity().setTitle("Profile");
         SharedPreferences pref = Helper.getCurrentUserSharedPreferences(getActivity());
         name  = pref.getString("fName", "") + " " + pref.getString("lName", "");
         fullName.setText(name);
@@ -368,6 +374,9 @@ public class ProfileFragment extends Fragment {
     }
 
 
+    /**
+     * Listen to the Profile Picture Clicks
+     */
     private void addProfileImageListener(){
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -386,10 +395,6 @@ public class ProfileFragment extends Fragment {
                             public boolean onMenuItemClick(MenuItem item) {
                                 switch (item.getTitle().toString()){
                                     case "Take Picture":
-                                        // check for permission to take photo and write to storage
-                                        // if granted, go ahead and take the pic
-                                        // otherwise, a permission request is sent and should be handled
-                                        // in the onRequestPermissionsResult() method
                                         if(Helper.grantPermission(getActivity(), PERMISSION_CODE)){
                                             Helper.takePicture(getActivity(), uri, PIC_CAPTURE_CODE);
                                         }
@@ -418,33 +423,33 @@ public class ProfileFragment extends Fragment {
                             popupProfilePic.setImageResource(R.drawable.female);
                             break;
                     }
+                    popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
                 }
                 else {
                     popupProfilePic.setImageBitmap(Helper.decodeImage(encodedImage));
+
+                    // now fetch the image from database (high quality)
+                    final DoWithDatabase doWithDatabase = new DoWithDatabase("Users", "image");
+
+                    Callable<Void> setImage = new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            String imageFromDB = doWithDatabase.getValue("image").toString();
+                            popupProfilePic.setImageBitmap(Helper.decodeImage(imageFromDB));
+                            popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
+                            return null;
+                        }
+                    };
+
+                    try {
+                        doWithDatabase.execute(setImage);
+                    } catch (DoWithDatabaseException e) {
+                        Log.e("DoWithDatabaseException", e.getMessage());
+                    }
                 }
                 imageDialog.show();
 
-                //popupProfilePic.getLayoutParams().height = (int)(Helper.getScreenHeight()*0.6);
-                //popupProfilePic.requestLayout();
 
-                // now fetch the image from database (high quality)
-                final DoWithDatabase doWithDatabase = new DoWithDatabase("Users", "image");
-
-                Callable<Void> setImage = new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        String imageFromDB = doWithDatabase.getValue("image").toString();
-                        popupProfilePic.setImageBitmap(Helper.decodeImage(imageFromDB));
-                        popupProfilePicProgressBar.setVisibility(View.INVISIBLE);
-                        return null;
-                    }
-                };
-
-                try {
-                    doWithDatabase.execute(setImage);
-                } catch (DoWithDatabaseException e) {
-                    Log.e("DoWithDatabaseException", e.getMessage());
-                }
             }
         });
 
@@ -496,8 +501,10 @@ public class ProfileFragment extends Fragment {
 
         /**** TAKING PICTURE USING CAMERA****/
         if(requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_CANCELED) {
-            File f = new File(uri.getPath());
-            f.delete();
+            if(uri!=null){
+                File f = new File(uri.getPath());
+                f.delete();
+            }
         }
         if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());

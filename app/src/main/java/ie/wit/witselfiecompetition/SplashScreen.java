@@ -4,23 +4,17 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
-import android.view.WindowManager;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import ie.wit.witselfiecompetition.model.User;
+import ie.wit.witselfiecompetition.model.Helper;
 
 /**
  * Splash Screen Class
  * Logo for the app
- * Created by Yahya on 08/02/18.
+ * Created by Yahya Almardeny on 08/02/18.
  */
 public class SplashScreen extends AppCompatActivity {
+
+    boolean login=false, main= false, profileSetup = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,25 +23,40 @@ public class SplashScreen extends AppCompatActivity {
         // check the phone orientation and set layout accordingly
         Helper.setContentAccordingToOrientation(this);
 
+        // run asynchronously while displaying splash screen
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(Helper.hasNetworkConnection(SplashScreen.this)) {
+                    if(Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
+                        if(Helper.sharedPreferencesExists(SplashScreen.this)){
+                            // update SharedPreferences
+                            Helper.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this);
+                            main = true;
+                        }
+                        else{profileSetup = true;}
+                    }
+                    else{login = true;}
+                }
+            }
+        }).start();
+
         // post event handler to move from current splash screen
-        // activity to the next activity
+        // activity to the proper next activity
         new Handler().postDelayed(new Runnable(){
             @Override
-            public void run (){
-                if(Helper.hasNetworkConnection(SplashScreen.this)) {
-                    // check if user already logged in and verified
-                    if (Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
-                        Helper.firstLoginRedirect(SplashScreen.this, Main.class, Login.class);
-                    } else { // go to login activity
-                        Helper.redirect(SplashScreen.this, Login.class, false);
-                    }
-                }
-                else{
+            public void run () {
+                if (main) {
+                    Helper.redirect(SplashScreen.this, Main.class, false);
+                } else if (profileSetup) {
+                    Helper.redirect(SplashScreen.this, ProfileSetup.class, false);
+                } else if (login) {
+                    Helper.redirect(SplashScreen.this, Login.class, false);
+                } else {
                     Helper.showMessage(SplashScreen.this, "No Internet Connection!", "Please connect to Network and retry again", true);
                 }
             }
-
-        }, 100);
+        }, 3000);
     }
 
 

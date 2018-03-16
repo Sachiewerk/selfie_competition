@@ -1,16 +1,18 @@
 package ie.wit.witselfiecompetition.model;
 
 import android.content.SharedPreferences;
+import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 
 /**
+ * NOTE : THIS IS NOT USED ANYMORE. KEPT FOR ANY FUTURE USE
  * This class listens to the changes in value given list of fields
  * in a given shared preferences file
  * then invoke a given method once all fields are updated
- * Created by Yahya on 06/03/18.
+ * Created by Yahya Almardeny on 06/03/18.
  */
 public class SharedPreferencesListener{
 

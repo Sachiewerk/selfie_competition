@@ -21,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import ie.wit.witselfiecompetition.model.Helper;
 
 
 public class Main extends AppCompatActivity
@@ -50,8 +53,6 @@ public class Main extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-        // .setAction("Action", null).show();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -62,11 +63,14 @@ public class Main extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         /************** Navigation Drawer *****************/
         View header = navigationView.getHeaderView(0);
         navigationView.setCheckedItem(R.id.nav_profile);
         navigationView.getMenu().performIdentifierAction(R.id.nav_profile, 0);
+
+        LinearLayout headerContainer = header.findViewById(R.id.header);
+        String color = Helper.getCurrentUserSharedPreferences(Main.this).getString("color", "Blue");
+        Helper.changeHeaderImageTheme(color, headerContainer, toolbar);
 
         TextView fullNameTextView = header.findViewById(R.id.fullNameTextView);
         profileImage =  header.findViewById(R.id.profileImage);
@@ -154,8 +158,10 @@ public class Main extends AppCompatActivity
 
         /**** TAKING PICTURE USING CAMERA****/
         if(requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_CANCELED) {
-            File f = new File(uri.getPath());
-            f.delete();
+            if(uri!=null){
+                File f = new File(uri.getPath());
+                f.delete();
+            }
         }
         if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
@@ -265,8 +271,14 @@ public class Main extends AppCompatActivity
                 fragment = fragmentManager.findFragmentByTag(fragTag);
                 if(fragment == null){fragment = new ProfileFragment();}
             } else if (id == R.id.nav_competition) {
+                fragTag = "fragmentCompetition";
+                fragment = fragmentManager.findFragmentByTag(fragTag);
+                if(fragment == null){fragment = new CompetitionFragment();}
 
             } else if (id == R.id.nav_gallery) {
+                fragTag = "fragmentGallery";
+                fragment = fragmentManager.findFragmentByTag(fragTag);
+                if(fragment == null){fragment = new GalleryFragment();}
 
             } else if (id == R.id.nav_settings) {
                 fragTag = "fragmentSettings";

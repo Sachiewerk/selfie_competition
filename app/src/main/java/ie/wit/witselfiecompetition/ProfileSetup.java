@@ -4,7 +4,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,14 +21,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import ie.wit.witselfiecompetition.model.Course;
+import ie.wit.witselfiecompetition.model.Helper;
 import ie.wit.witselfiecompetition.model.User;
 
 /**
- * This Class to setup the user profile at the
+ * This Class to setup the user profile after the
  * very first login
  * @author Yahya Almardeny
  * @version 01/03/2018
@@ -43,6 +43,7 @@ public class ProfileSetup extends AppCompatActivity {
     String gender;
     ProgressBar profileSetupProgressBar;
     Spinner coursesMenu;
+    TextView signoutTextView;
     String course;
 
     @Override
@@ -58,6 +59,7 @@ public class ProfileSetup extends AppCompatActivity {
         joinButton = findViewById(R.id.joinButton);
         profileSetupProgressBar = findViewById(R.id.profileSetupProgressBar);
         coursesMenu = findViewById(R.id.coursesMenu);
+        signoutTextView = findViewById(R.id.signoutTextView);
         final String[] courses = Course.courses();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, courses);
         coursesMenu.setAdapter(adapter);
@@ -82,6 +84,14 @@ public class ProfileSetup extends AppCompatActivity {
                     User user = new User(fName, lName, gender, course, "", "" );
                     addNewUser(user);
                 }
+            }
+        });
+
+        signoutTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                Helper.redirect(ProfileSetup.this, Login.class, false);
             }
         });
 

@@ -1,7 +1,8 @@
 package ie.wit.witselfiecompetition.model;
 
 /**
- * Created by yahya on 13/03/18.
+ * Custom Exception for DoWithData Class
+ * Created by Yahya Almardeny on 13/03/18.
  */
 
 public class DoWithDatabaseException extends Exception {

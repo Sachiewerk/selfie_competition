@@ -11,15 +11,21 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * Created by yahya on 13/03/18.
+ * Execute Function(s) on specfic data
+ * after fetching them from Database
+ * Created by yahya Almardeny on 13/03/18.
  */
 
-public class DoWithDatabase implements Callable<Void>{
+public class DoWithDatabase{
 
     private Map<String,Object> data;
-    private Callable<Void> callable;
     private String node;
 
+    /**
+     * Constructor for many fields(keys)
+     * @param node
+     * @param fields
+     */
     public DoWithDatabase(String node, String[] fields){
         this.node = node;
         data = new HashMap<>();
@@ -28,6 +34,11 @@ public class DoWithDatabase implements Callable<Void>{
         }
     }
 
+    /**
+     * Constructor for one field(key)
+     * @param node
+     * @param field
+     */
     public DoWithDatabase(String node, String field){
         this.node = node;
         data = new HashMap<>();
@@ -35,6 +46,12 @@ public class DoWithDatabase implements Callable<Void>{
     }
 
 
+    /**
+     * Execute and Call a given Callable after
+     * fetching required data from Database
+     * @param postImplementation
+     * @throws DoWithDatabaseException
+     */
     public void execute(final Callable<Void> postImplementation) throws DoWithDatabaseException {
         FirebaseDatabase.getInstance().getReference().child(node)
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -66,18 +83,26 @@ public class DoWithDatabase implements Callable<Void>{
                 });
     }
 
+
+    /**
+     * Get given field value
+     * from data
+     * @param field
+     * @return
+     */
     public Object getValue(String field){
+
         return data.get(field);
     }
 
+
+    /**
+     * Return the data fetched from database
+     * @return
+     */
     public Map<String, Object> getData() {
         return data;
     }
 
 
-    @Override
-    public Void call() throws Exception {
-        this.callable.call();
-        return null;
-    }
 }

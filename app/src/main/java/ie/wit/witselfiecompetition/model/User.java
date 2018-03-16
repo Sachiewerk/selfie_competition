@@ -1,9 +1,8 @@
 package ie.wit.witselfiecompetition.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
+ * User Model Class to represent User Collection
+ * in Database
  * Created by yahya on 21/02/18.
  */
 
@@ -17,6 +16,15 @@ public class User {
 
     public User(){}
 
+    /**
+     * Constructor for creating new User
+     * @param fName
+     * @param lName
+     * @param gender
+     * @param course
+     * @param aboutMet
+     * @param image
+     */
     public User(String fName, String lName, String gender, String course, String aboutMet, String image) {
         this.fName = fName;
         this.lName = lName;

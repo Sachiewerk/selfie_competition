@@ -1,4 +1,4 @@
-package ie.wit.witselfiecompetition;
+package ie.wit.witselfiecompetition.model;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -23,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
@@ -41,6 +41,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -58,8 +59,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-import ie.wit.witselfiecompetition.model.SharedPreferencesListener;
-import ie.wit.witselfiecompetition.model.User;
+import ie.wit.witselfiecompetition.R;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -67,7 +67,8 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * This Helper Class to accelerate and ease the work
  * and compact it, also to avoid loads of duplicates
- * Created by Yahya on 20/02/18.
+ * of code among different activities and classes
+ * Created by Yahya Almardeny on 20/02/18.
  */
 
 public class Helper {
@@ -125,6 +126,9 @@ public class Helper {
             emailEditText.setError(Html.fromHtml("<font color='white'>Invalid Email!</font>"));
             return false;
         }
+
+        /*if(!email.split("@")[1].equals("wit.ie")){Toast.makeText(emailEditText.getContext(), "Only WIT Students can use this app\n" +
+        "If you are already a WIT student, please use your WIT email", Toast.LENGTH_SHORT).show();}*/
         return true;
     }
 
@@ -230,7 +234,6 @@ public class Helper {
     }
 
 
-
     /**
      * This method to move conditionally between activities
      * @param activity
@@ -291,12 +294,6 @@ public class Helper {
             }
         }
 
-        if(!name.contains(" ")){
-            Toast.makeText(activity, "Please insert full name ",
-                    Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
         return true;
     }
 
@@ -333,63 +330,12 @@ public class Helper {
 
 
 
-
-    /**
-     * This method checks if this is the first login for user
-     * to the account and to the mobile phone
-     * check with sharedPreferences and database
-     * for user personal profile information
-     * and redirect to the proper activity accordingly
-     * @param from
-     * @param act1
-     * @param act2
-     * @return
-     */
-    public static void firstLoginRedirect(final Activity from, final Class act1, final Class act2) {
-        // first check shared preferences for profile info
-        if(isSharedPreferencesUpdated(from)){
-            Helper.redirect(from, act1, false);
-        }
-        else { // check with database
-
-            FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
-                    equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            // if found, update sharedPreferences and listen to the updates
-                            if (dataSnapshot.exists()) {
-                                String[] fields = {"fName", "lName", "gender", "image", "course"};
-                                SharedPreferencesListener spl =
-                                        new SharedPreferencesListener(fields, getCurrentUserSharedPreferences(from));
-                                copyUserInfoFromDatabaseToSharedPref(from);
-                                spl.invokeAfterUpdate(new Callable<Void>() {
-                                    @Override
-                                    public Void call() throws Exception {
-                                        Helper.redirect(from, act1, false);
-                                        return null;
-                                    }
-                                });
-                            } else {
-                                Helper.redirect(from, act2, false);
-                            }
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(from, "Failed to verify log in", Toast.LENGTH_LONG);
-                        }
-                    });
-        }
-    }
-
-
-
     /**
      * This method to add to SharedPreferences file
      * @param activity
      * @param map
      */
-    public static boolean addToSharedPreferences(Activity activity, Map<String,?> map) {
+    public static void addToSharedPreferences(Activity activity, Map<String,?> map) {
         SharedPreferences pref = getCurrentUserSharedPreferences(activity);
         SharedPreferences.Editor editor = pref.edit();
 
@@ -413,7 +359,6 @@ public class Helper {
                 editor.putBoolean(k, (Boolean)v).commit();
             }
         }
-        return true;
 
     }
 
@@ -425,7 +370,7 @@ public class Helper {
      * @param k
      * @param v
      */
-    public static boolean addToSharedPreferences(Activity activity, String k , Object v) {
+    public static void addToSharedPreferences(Activity activity, String k , Object v) {
         SharedPreferences pref = getCurrentUserSharedPreferences(activity);
         SharedPreferences.Editor editor = pref.edit();
 
@@ -444,12 +389,6 @@ public class Helper {
         else if (v instanceof Boolean){
             editor.putBoolean(k, (Boolean)v).apply();
         }
-        else {
-            return false;
-        }
-
-        return true;
-
     }
 
 
@@ -467,52 +406,6 @@ public class Helper {
                     PERMISSION_CODE);
         }
         return hasPermission;
-    }
-
-
-    /**
-     * Conditionally set the user image and full name after login
-     * but from the cloud (database)
-     * @param fullName
-     * @param profileImage
-     */
-    public static void setPersonalImageAndNameFromDB(final TextView fullName, final ImageView profileImage){
-        FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
-                equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        try{
-                            User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
-                            String firstName = user.getfName();
-                            String lastName = user.getlName();
-                            String encodedImage = user.getImage();
-                            String gender = user.getGender();
-
-                            fullName.setText(firstName + " " + lastName);
-
-                            if (encodedImage.isEmpty()) {
-                                switch (gender) {
-                                    case "Male":
-                                        profileImage.setImageResource(R.drawable.male);
-                                        break;
-                                    case "Female":
-                                        profileImage.setImageResource(R.drawable.female);
-                                        break;
-                                }
-                            } else {
-                                byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                                profileImage.setImageBitmap(bitmap);
-                            }
-                        }catch (Exception e){
-                            Log.e("Set ProfileFragment", e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
     }
 
 
@@ -571,31 +464,6 @@ public class Helper {
                 }
             });
         }
-    }
-
-
-    /**
-     * Add a given data to database
-     * data in format single key/value
-     * @param activity
-     * @param node
-     * @param field
-     * @param value
-     * @param errorMessage
-     */
-    public static void addToDatabase(final Activity activity, String node, String field, String value, final String errorMessage){
-        FirebaseDatabase.getInstance().getReference().child(node)
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(field).setValue(value).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (!task.isSuccessful()) {
-                        if(errorMessage!=null){
-                            Toast.makeText(activity, errorMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            });
     }
 
 
@@ -664,7 +532,6 @@ public class Helper {
                     }
                 });
     }
-
 
 
     /**
@@ -797,39 +664,46 @@ public class Helper {
 
 
     /**
-     * Change cover photo in the fragment_profile
-     * upon user's request
+     * Change cover photo upon user's request
      * @param color
      * @param header
      */
-   public static void changeHeaderImageTheme(String color, LinearLayout header){
-       switch (color.toUpperCase()) {
-           case "BLUE":
+   public static void changeHeaderImageTheme(String color, LinearLayout header, Toolbar toolBar){
+
+       switch (color){
+           case "Blue":
                header.setBackgroundResource(R.drawable.header_blue);
+               toolBar.setBackgroundResource(R.color.background);
                break;
-           case "RED":
+           case "Red":
                header.setBackgroundResource(R.drawable.header_red);
+               toolBar.setBackgroundResource(R.color.colorRed);
                break;
-           case "PURPLE":
+           case "Purple":
                header.setBackgroundResource(R.drawable.header_purple);
+               toolBar.setBackgroundResource(R.color.colorPurple);
                break;
-           case "GREEN":
+           case "Green":
                header.setBackgroundResource(R.drawable.header_green);
+               toolBar.setBackgroundResource(R.color.colorGreen);
                break;
-           case "ORANGE":
+           case "Orange":
                header.setBackgroundResource(R.drawable.header_orange);
+               toolBar.setBackgroundResource(R.color.colorOrange);
                break;
-           case "GREY":
+           case "Grey":
                header.setBackgroundResource(R.drawable.header_grey);
+               toolBar.setBackgroundResource(R.color.colorGrey);
                break;
-           case "YELLOW":
+           case "Yellow":
                header.setBackgroundResource(R.drawable.header_yellow);
+               toolBar.setBackgroundResource(R.color.colorYellow);
                break;
-           case "CYAN":
+           case "Cyan":
                header.setBackgroundResource(R.drawable.header_cyan);
+               toolBar.setBackgroundResource(R.color.colorCyan);
                break;
        }
-
    }
 
 
@@ -844,7 +718,11 @@ public class Helper {
     }
 
 
-
+    /**
+     * Copy the current user's info from database
+     * to the SharedPreferences
+     * @param activity
+     */
     public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity){
 
         FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
@@ -857,7 +735,7 @@ public class Helper {
                         if (!encodedImage.isEmpty()) {
                             byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
                             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            user.setImage(encodeImage(activity,bitmap, 100 ));
+                            user.setImage(encodeImage(activity,bitmap, 15 ));
                             Map<String, String> profileInfo = getUserInfoInMap(user);
                             addToSharedPreferences(activity, profileInfo);
                         }
@@ -885,22 +763,6 @@ public class Helper {
 
 
     /**
-     * Check if SharedPreferences for the current user
-     * exists and contains profile info
-     * @param activity
-     * @return
-     */
-    public static boolean isSharedPreferencesUpdated(Activity activity){
-        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
-
-        return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
-                !pref.getString("lName", "").isEmpty() &&
-                !pref.getString("gender", "").isEmpty()
-                && !pref.getString("course", "").isEmpty();
-    }
-
-
-    /**
      * Get the sharedPreferences of the current user
      * @param context
      * @return
@@ -913,6 +775,7 @@ public class Helper {
 
     /**
      * Show Progressbar on the top of the page
+     * (i.e. in front of everything)
      * @param activity
      */
     public static Dialog onTopProgressBar (Activity activity){
@@ -945,33 +808,6 @@ public class Helper {
     public static void hideSoftKeyboard(Activity activity, View view){
         ((InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
-
-    /**
-     * Temporarily Disable Phone Rotation
-     * @param activity
-     */
-    public static void disableOrientation(Activity activity){
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-    }
-
-
-    /**
-     * Enable Phone Rotation
-     * @param activity
-     */
-    public static void enableOrientation(Activity activity){
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-
-    /**
-     * Get Mobile Screen Height
-     * @return
-     */
-    public static int getScreenHeight(){
-        return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
 
 
@@ -1027,4 +863,131 @@ public class Helper {
         activity.startActivityForResult(gallery, LOAD_IMAGE_CODE);
     }
 
+
+    /**
+     * Check is SharedPreferences for
+     * current user exists and contains info
+     * @param activity
+     * @return
+     */
+    public static boolean sharedPreferencesExists(Activity activity) {
+        SharedPreferences pref = getCurrentUserSharedPreferences(activity);
+
+        return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
+                !pref.getString("lName", "").isEmpty() &&
+                !pref.getString("gender", "").isEmpty()
+                && !pref.getString("course", "").isEmpty();
+    }
+
+
+    /**
+     * Return the color value saved in shared preferences
+     * as integer
+     * @param activity
+     * @return
+     */
+    public static int getThemeColor(Activity activity){
+        String color = getCurrentUserSharedPreferences(activity)
+                .getString("color", "Blue");
+        switch (color){
+            case "Blue":
+                return activity.getResources().getColor(R.color.background);
+            case "Red":
+                return activity.getResources().getColor(R.color.colorRed);
+            case "Purple":
+                return activity.getResources().getColor(R.color.colorPurple);
+            case "Green":
+                return activity.getResources().getColor(R.color.colorGreen);
+            case "Orange":
+                return activity.getResources().getColor(R.color.colorOrange);
+            case "Grey":
+                return activity.getResources().getColor(R.color.colorGrey);
+            case "Yellow":
+                return activity.getResources().getColor(R.color.colorYellow);
+            case "Cyan":
+                return activity.getResources().getColor(R.color.colorCyan);
+            default:
+                return activity.getResources().getColor(R.color.background);
+        }
+    }
+
+    /**
+     * Remove child from database for
+     * the current user, specifying the
+     * parent collections/nodes
+     * and what to do after a successful deletion
+     * if child is null, that means its value is userID
+     * @param child
+     * @param afterDeletion
+     * @param collections
+     */
+    public static void removeChildNode(@Nullable String child, final Callable<Void> afterDeletion, final String ...collections){
+
+        final boolean[] flag = {true};
+
+        final StringBuilder key = (child==null)?
+                                    new StringBuilder(FirebaseAuth.getInstance().getUid())
+                                    : new StringBuilder(child);
+
+        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        final int lastIndex = collections.length-1;
+        for (final String node : collections){
+            reference.child(node).child(key.toString()).removeValue()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                if(node.equals(collections[lastIndex]) && flag[0]){
+                                    try {afterDeletion.call();} catch (Exception e) {}
+                                }
+                            }
+                            else{flag[0] = false;}
+                        }
+                    });
+        }
+    }
+
+
+    /**
+     * Remove child from the entire database for
+     * the current user, specifying
+     * what to do after a successful deletion
+     * if child is null, that means its value is userID
+     * @param child
+     * @param afterDeletion
+     */
+    public static void removeChildNode(@Nullable String child, final Callable<Void> afterDeletion){
+        final boolean[] flag = {true};
+        final int[] counter = {0};
+
+        final StringBuilder key = (child==null)?
+                new StringBuilder(FirebaseAuth.getInstance().getUid())
+                : new StringBuilder(child);
+
+        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final long count = dataSnapshot.getChildrenCount();
+                for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    snapshot.child(key.toString()).getRef().removeValue()
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        counter[0]++;
+                                        if(counter[0]==count && flag[0]){
+                                            try {afterDeletion.call();}
+                                            catch (Exception e) {}
+                                        }
+                                    }else{flag[0]=false;}
+                                }
+                            });
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
 }

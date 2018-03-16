@@ -122,7 +122,7 @@
         android:textSize="@dimen/_13ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/coursesMenu" />
+        app:layout_constraintTop_toBottomOf="@id/coursesMenu" />
 
     <ProgressBar
         android:id="@+id/profileSetupProgressBar"
@@ -133,8 +133,23 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/coursesMenu"
-        tools:visibility="invisible" />
+        app:layout_constraintTop_toBottomOf="@id/coursesMenu"
+        tools:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/signoutTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_40sdp"
+        android:layout_marginLeft="@dimen/_20sdp"
+        android:fontFamily="cursive"
+        android:text="@string/sign_out"
+        android:textColor="@color/hyperlink"
+        android:textSize="@dimen/_13ssp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/joinButton"
+        app:layout_constraintTop_toBottomOf="@id/coursesMenu" />
 
 
 </android.support.constraint.ConstraintLayout>

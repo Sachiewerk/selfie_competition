@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">WIT Selfie Competition</string>
+    <string name="app_name">WITSelfie Competition</string>
     <string name="prompt_fName">First Name</string>
     <string name="prompt_lName">Last Name</string>
     <string name="about_info">Write pertinent information about your life. Focus on your interests, hobbies and accomplishments and include any quotes that inspire you.</string>
@@ -15,6 +15,7 @@
     <string name="type_your_email">Type your email here</string>
     <string name="create_account"><b>Create an Account.</b></string>
     <string name="reset_password">Reset Password</string>
+    <string name="change_password">Update Password</string>
     <string name="register">Register</string>
     <string name="profile_setup">Profile Setup</string>
     <string name="splashTitle">WIT Selfie Competition</string>
@@ -31,7 +32,22 @@
     <string name="full_name">Your Full Name</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
-    <string name="click_on_image_to_change">click on image to change</string>=
+    <string name="sign_out">Sign Out</string>
+    <string name="click_on_image_to_change">click on image to change</string>
+    <string name="change_header">Change Header Theme</string>
+    <string name="close_account">Close Account</string>
+    <string name="themes">Available Colors</string>
+    <string name="about">About WIT Selfie Competition</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="repeat_password">Repeat New Password</string>
+    <string name="app_theme">Change Theme</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="about_app">\nThis Selfie Competition application meant to add some social value to the students’ life
+        in Waterford Institute of Technology via having some constructive fun and leaving good memories.\n
+        Please use it respectfully!\n\n\n
+    Developed By: Yahya Almardeny.\nAll Rights Reserved 2018.\n</string>
+
 
 
 </resources>

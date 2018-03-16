@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/deleteAccountDialog"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/_265sdp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context="ie.wit.witselfiecompetition.Main">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginLeft="@dimen/_15sdp"
+        android:text="@string/delete_account"
+        android:textColor="@color/dialogText"
+        android:textSize="@dimen/_17ssp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="@dimen/_15sdp" />
+
+    <ImageView
+        android:id="@+id/Hbar"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="15dp"
+        android:background="#00c8ff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView" />
+
+
+    <EditText
+        android:id="@+id/deleteAccountEmail"
+        android:layout_width="@dimen/_170sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:background="@drawable/edit_text"
+        android:hint="@string/prompt_email"
+        android:inputType="textEmailAddress"
+        android:singleLine="true"
+        android:textColor="@color/input"
+        android:textSize="@dimen/_13ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Hbar" />
+
+    <EditText
+        android:id="@+id/deleteAccountPassword"
+        android:layout_width="@dimen/_170sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:background="@drawable/edit_text"
+        android:hint="@string/prompt_password"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:textColor="@color/input"
+        android:textSize="@dimen/_13ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/deleteAccountEmail" />
+
+    <LinearLayout
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/_25sdp"
+        app:layout_constraintTop_toBottomOf="@id/deleteAccountPassword"/>
+
+</android.support.constraint.ConstraintLayout>

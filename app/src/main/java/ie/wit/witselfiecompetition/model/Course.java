@@ -1,7 +1,7 @@
 package ie.wit.witselfiecompetition.model;
 
 /**
- * All courses in WIT 2018
+ * All courses in WIT 2018 as enum
  * @author Yahya Almardeny
  * @version 22/02/2018
  */
@@ -113,8 +113,9 @@ public enum Course {
         return name().replace("_", " ");
     }
 
+
     /**
-     * Get all courses as in an array of String
+     * Get all courses as in an array of Strings
      * @return courses
      */
     public static String[] courses() {

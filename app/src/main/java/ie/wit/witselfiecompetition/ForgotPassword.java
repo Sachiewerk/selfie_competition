@@ -11,9 +11,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
+import ie.wit.witselfiecompetition.model.Helper;
+
 /**
  * This class to reset the forgotten password on user request
- * Created by yahya on 17/02/18.
+ * Created on 17/02/18.
  * @author Yahya Almardeny
  */
 

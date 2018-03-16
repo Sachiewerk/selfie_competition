@@ -15,9 +15,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import ie.wit.witselfiecompetition.model.Helper;
+
 
 /**
- * Created by Yahya on 17/02/18.
+ * Created by Yahya Almardeny on 17/02/18.
  * Register User for first time with
  * WIT Selfie Competition
  */

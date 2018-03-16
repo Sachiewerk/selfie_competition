@@ -138,6 +138,18 @@
         app:layout_constraintTop_toBottomOf="@+id/coursesMenu"
         tools:visibility="invisible" />
 
-
+    <TextView
+        android:id="@+id/signoutTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:fontFamily="cursive"
+        android:text="@string/sign_out"
+        android:textColor="@color/hyperlink"
+        android:textSize="@dimen/_13ssp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/joinButton" />
 
 </android.support.constraint.ConstraintLayout>

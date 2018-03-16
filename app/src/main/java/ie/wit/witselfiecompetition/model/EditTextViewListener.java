@@ -1,20 +1,16 @@
 package ie.wit.witselfiecompetition.model;
 
-import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import ie.wit.witselfiecompetition.Helper;
 
 
 /**
@@ -24,8 +20,8 @@ import ie.wit.witselfiecompetition.Helper;
  * Also set the proper EditText/TextView Width onCreate() so it also
  * covers when phone rotates.
  * It accepts LinearLayout and RelativeLayout as parent
- * if parent is null, that means the parent is the screen itself
- * Created by Yahya on 06/03/18.
+ * if parent is null, that means the parent is the phone screen itself
+ * Created by Yahya Almardeny on 06/03/18.
  */
 
 public class EditTextViewListener implements TextWatcher {

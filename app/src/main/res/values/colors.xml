@@ -16,4 +16,11 @@
     <color name="darkGrey">#212121</color>
     <color name="colorMain">#c8cfd6</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorRed">#8e0500</color>
+    <color name="colorPurple">#74008b</color>
+    <color name="colorGreen">#039600</color>
+    <color name="colorYellow">#cac400</color>
+    <color name="colorCyan">#01aba5</color>
+    <color name="colorGrey">#626264</color>
+    <color name="colorOrange">#ca7600</color>
 </resources>
