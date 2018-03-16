@@ -520,13 +520,13 @@ public class Helper {
                             try {
                                 onSuccess.call();
                             } catch (Exception e) {
-                                Log.v("Tag", e.getMessage());
+                                Log.e("database error", e.getMessage());
                             }
                         } else {
                             try {
                                 onFailure.call();
                             } catch (Exception e) {
-                                Log.v("Tag", e.getMessage());
+                                Log.e("database error", e.getMessage());
                             }
                         }
                     }
@@ -645,7 +645,7 @@ public class Helper {
            return BIT_DEPTH;
 
            }catch(Exception e){
-               Log.v("jpeg bit depth", e.getMessage());
+               Log.e("jpeg bit depth", e.getMessage());
                return 0;
            }
    }
@@ -819,49 +819,6 @@ public class Helper {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-
-    /**
-     * Take picture using the camera of mobile phone
-     * @param activity
-     * @param uri
-     * @param PIC_CAPTURE_CODE
-     */
-    public static void takePicture(Activity activity, Uri uri, int PIC_CAPTURE_CODE){
-        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-        String newDirPath = picturesDir + "/witSelfieCompetition/";
-        File newDir = new File(newDirPath);
-        if(!newDir.exists()){newDir.mkdirs();}
-        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
-        File picFile = new File(newDir+picName);
-
-        try {
-            picFile.createNewFile();
-            uri = Uri.fromFile(picFile);
-            Intent camera = new Intent();
-            camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-            camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            activity.startActivityForResult(camera, PIC_CAPTURE_CODE);
-        }
-        catch (IOException e) {
-            picFile.delete();
-            Helper.showMessage(activity,"Error!", "Could not save image", false);
-        }
-
-    }
-
-
-    /**
-     * upload image from phone gallery
-     * @param activity
-     * @param LOAD_IMAGE_CODE
-     */
-    public static void uploadPicture(Activity activity, int LOAD_IMAGE_CODE) {
-        Intent gallery = new Intent();
-        gallery.setType("image/*");
-        gallery.setAction(Intent.ACTION_GET_CONTENT);
-        gallery.addCategory(Intent.CATEGORY_OPENABLE);
-        activity.startActivityForResult(gallery, LOAD_IMAGE_CODE);
-    }
 
 
     /**

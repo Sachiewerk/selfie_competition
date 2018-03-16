@@ -1,11 +1,14 @@
 package ie.wit.witselfiecompetition;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,7 +32,11 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import ie.wit.witselfiecompetition.model.Helper;
@@ -92,11 +99,11 @@ public class Main extends AppCompatActivity
                                 // otherwise, a permission request is sent and should be handled
                                 // in the onRequestPermissionsResult() method
                                 if(Helper.grantPermission(Main.this, PERMISSION_CODE)){
-                                    Helper.takePicture(Main.this, uri, PIC_CAPTURE_CODE);
+                                    takePicture();
                                 }
                                 break;
                             case "Upload Picture":
-                                Helper.uploadPicture(Main.this, LOAD_IMAGE_CODE);
+                                uploadPicture();
                                 break;
                         }
                         return true;
@@ -142,7 +149,7 @@ public class Main extends AppCompatActivity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Helper.takePicture(Main.this, uri, PIC_CAPTURE_CODE);
+                takePicture();
             } else {
                 Toast.makeText(this, "No permission to write to external storage.", Toast.LENGTH_SHORT).show();
             }
@@ -177,7 +184,7 @@ public class Main extends AppCompatActivity
                             e.getLocalizedMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(Main.this,uri, 15);
+                    final String thumbnail = Helper.encodeImage(Main.this,uri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(Main.this,thumbnailInfo);
@@ -209,7 +216,7 @@ public class Main extends AppCompatActivity
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 15);
+                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(Main.this,thumbnailInfo);
@@ -359,6 +366,40 @@ public class Main extends AppCompatActivity
                     Helper.decodeImage(
                             Helper.getCurrentUserSharedPreferences(Main.this).getString("image", "")));
         }
+    }
+
+    /**
+     * Take picture using the camera of mobile phone
+     */
+    private void takePicture(){
+        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+        String newDirPath = picturesDir + "/witSelfieCompetition/";
+        File newDir = new File(newDirPath);
+        if(!newDir.exists()){newDir.mkdirs();}
+        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+        File picFile = new File(newDir+picName);
+
+        try {
+            picFile.createNewFile();
+            uri = Uri.fromFile(picFile);
+            Intent camera = new Intent();
+            camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+            camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            startActivityForResult(camera, PIC_CAPTURE_CODE);
+        }
+        catch (IOException e) {
+            picFile.delete();
+            Helper.showMessage(this,"Error!", "Could not save image", false);
+        }
+
+    }
+
+    private void uploadPicture() {
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        gallery.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(gallery, LOAD_IMAGE_CODE);
     }
 
 }

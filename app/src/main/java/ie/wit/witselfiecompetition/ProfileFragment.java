@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,9 +30,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -63,7 +69,7 @@ public class ProfileFragment extends Fragment {
     private FrameLayout courseEditIcon, fullNameEditIcon, genderEditIcon, aboutMeEditIcon;
     private LinearLayout changesControlFullName, changesControlCourse, changesControlGender, changesControlAboutMe;
     private String name, course, gender, aboutMe, image;
-    private Dialog progressbar;
+    private Dialog progressbar, imageDialog ;
     private ProgressBar popupProfilePicProgressBar;
     private Uri uri;
 
@@ -381,7 +387,7 @@ public class ProfileFragment extends Fragment {
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dialog imageDialog = new Dialog(getActivity(), R.style.imageFrameDialog);
+                imageDialog = new Dialog(getActivity(), R.style.imageFrameDialog);
                 imageDialog.setContentView(R.layout.profile_pic);
                 popupProfilePic = imageDialog.findViewById(R.id.popupProfilePic);
                 popupProfilePicProgressBar = imageDialog.findViewById(R.id.popupProfilePicProgressBar);
@@ -396,11 +402,11 @@ public class ProfileFragment extends Fragment {
                                 switch (item.getTitle().toString()){
                                     case "Take Picture":
                                         if(Helper.grantPermission(getActivity(), PERMISSION_CODE)){
-                                            Helper.takePicture(getActivity(), uri, PIC_CAPTURE_CODE);
+                                            takePicture();
                                         }
                                         break;
                                     case "Upload Picture":
-                                        Helper.uploadPicture(getActivity(), LOAD_IMAGE_CODE);
+                                        uploadPicture();
                                         break;
                                 }
                                 return true;
@@ -486,7 +492,7 @@ public class ProfileFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Helper.takePicture(getActivity(), uri, PIC_CAPTURE_CODE);
+                takePicture();
             } else {
                 Toast.makeText(getActivity(), "No permission to write to external storage.", Toast.LENGTH_SHORT).show();
             }
@@ -506,7 +512,7 @@ public class ProfileFragment extends Fragment {
                 f.delete();
             }
         }
-        if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
+        else if (requestCode == PIC_CAPTURE_CODE && resultCode == RESULT_OK) {
             final File pic = new File(uri.getPath());
             popupProfilePicProgressBar.setVisibility(View.VISIBLE);
 
@@ -520,7 +526,7 @@ public class ProfileFragment extends Fragment {
                             e.getMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(getActivity(),uri, 15);
+                    final String thumbnail = Helper.encodeImage(getActivity(),uri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(getActivity(),thumbnailInfo);
@@ -534,7 +540,7 @@ public class ProfileFragment extends Fragment {
 
                             profilePic.setImageBitmap(Helper.decodeImage(thumbnail));
 
-                            final String databaseImg = Helper.encodeImage(getActivity(),uri, 1000);
+                            final String databaseImg = Helper.encodeImage(getActivity(),uri, 1200);
                             Map<String, String> databaseImgInfo = new HashMap<>();
                             databaseImgInfo.put("image", databaseImg);
                             Helper.addToDatabase(getActivity(),"Users", databaseImgInfo, "Failed to add image to database!");
@@ -548,13 +554,13 @@ public class ProfileFragment extends Fragment {
         }
 
         /**** UPLOADING PICTURE FROM GALLERY ****/
-        if (requestCode == LOAD_IMAGE_CODE && resultCode == RESULT_OK) {
+        else if (requestCode == LOAD_IMAGE_CODE && resultCode == RESULT_OK) {
             final Uri imageUri = data.getData();
             popupProfilePicProgressBar.setVisibility(View.VISIBLE);
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(getActivity(),imageUri, 15);
+                    final String thumbnail = Helper.encodeImage(getActivity(),imageUri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
                     Helper.addToSharedPreferences(getActivity(),thumbnailInfo);
@@ -563,12 +569,14 @@ public class ProfileFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             ImageView profileImage = getActivity().findViewById(R.id.profileImage);
                             profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
 
                             profilePic.setImageBitmap(Helper.decodeImage(thumbnail));
 
                             final String databaseImg = Helper.encodeImage(getActivity(),imageUri, 1200);
+
                             Map<String, String> originalInfo = new HashMap<>();
                             originalInfo.put("image", databaseImg);
                             Helper.addToDatabase(getActivity(),"Users", originalInfo, "Failed to add image to database!");
@@ -584,5 +592,37 @@ public class ProfileFragment extends Fragment {
     }
 
 
+    /**
+     * Take picture using the camera of mobile phone
+     */
+    private void takePicture(){
+        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+        String newDirPath = picturesDir + "/witSelfieCompetition/";
+        File newDir = new File(newDirPath);
+        if(!newDir.exists()){newDir.mkdirs();}
+        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+        File picFile = new File(newDir+picName);
 
+        try {
+            picFile.createNewFile();
+            uri = Uri.fromFile(picFile);
+            Intent camera = new Intent();
+            camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+            camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            startActivityForResult(camera, PIC_CAPTURE_CODE);
+        }
+        catch (IOException e) {
+            picFile.delete();
+            Helper.showMessage(getActivity(),"Error!", "Could not save image", false);
+        }
+
+    }
+
+    private void uploadPicture() {
+        Intent gallery = new Intent();
+        gallery.setType("image/*");
+        gallery.setAction(Intent.ACTION_GET_CONTENT);
+        gallery.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(gallery, LOAD_IMAGE_CODE);
+    }
 }
