@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * Execute Function(s) on specfic data
+ * Execute Function(s) on specific data
  * after fetching them from Database
  * Created by yahya Almardeny on 13/03/18.
  */
