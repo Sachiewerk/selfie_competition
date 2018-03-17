@@ -113,7 +113,8 @@ The appropriate layout is set according to the phone orientation at runtime by u
 
 I used the `SharedPreferences` to save and retrieve persistent key-value pairs of primitive data type for the user information and the different size of `64Based` Encoded Images.<br>
 I followed most of the Android Lint suggestions to maintain persistent code style and improve performance in addition to locking and unlocking the views based on the type of the implementation (synchronous / asynchronous).<br>
-The user can choose from a drop-down menu that contains all the available courses in WIT 2018 when they register. That will prevent dumb data and make it easier maintain consistency in Courses names and users' information. 
+The user can choose from a drop-down menu that contains all the available courses in WIT 2018 when they register. That will prevent dumb data and make it easier maintain consistency in Courses names and users' information. <br>
+Also, everything is commented, so the code and implementation is self-explanatory.
 
 
 **References:**
