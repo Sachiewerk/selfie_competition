@@ -4,8 +4,11 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import ie.wit.witselfiecompetition.model.Helper;
+
+import static java.lang.Thread.sleep;
 
 /**
  * Splash Screen Class
@@ -29,9 +32,14 @@ public class SplashScreen extends AppCompatActivity {
             public void run() {
                 if(Helper.hasNetworkConnection(SplashScreen.this)) {
                     if(Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
+
+                        Helper.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this);
+                        try {
+                            sleep(4000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         if(Helper.sharedPreferencesExists(SplashScreen.this)){
-                            // update SharedPreferences
-                            Helper.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this);
                             main = true;
                         }
                         else{profileSetup = true;}
@@ -56,7 +64,7 @@ public class SplashScreen extends AppCompatActivity {
                     Helper.showMessage(SplashScreen.this, "No Internet Connection!", "Please connect to Network and retry again", true);
                 }
             }
-        }, 3000);
+        }, 5000);
     }
 
 

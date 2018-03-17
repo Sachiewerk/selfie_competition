@@ -617,12 +617,6 @@ public class Helper {
      */
    private static int JPEGBitDepth(Activity activity, Bitmap bitmap){
 
-       SharedPreferences pref = activity.getApplicationContext().getSharedPreferences("JPEG", MODE_PRIVATE);
-       int BIT_DEPTH = pref.getInt("BIT_DEPTH", -1);
-       if(BIT_DEPTH>0){
-           return BIT_DEPTH;
-       }
-
        File temp = new File(activity.getCacheDir(), "temp.jpg");
        int width = bitmap.getWidth();
        int height = bitmap.getHeight();
@@ -633,14 +627,15 @@ public class Helper {
            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
            os.close();
            double lenInBits = temp.length() * Byte.SIZE;
+
            temp.delete();
-           BIT_DEPTH = (int)Math.round(lenInBits/(width*height));
-           SharedPreferences.Editor editor = pref.edit();
-           editor.putInt("BIT_DEPTH", BIT_DEPTH);
+           int BIT_DEPTH  = (int)Math.round(lenInBits/(width*height));
+           if(BIT_DEPTH==0) BIT_DEPTH++;
+
            return BIT_DEPTH;
 
            }catch(Exception e){
-               Log.e("jpeg bit depth", e.getMessage());
+               Log.e("JPEGBitDepth", e.getMessage());
                return 0;
            }
    }
@@ -653,8 +648,7 @@ public class Helper {
      */
    public static Bitmap decodeImage(String encodedImage) {
        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-       Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-       return bitmap;
+       return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
    }
 
 
@@ -725,14 +719,17 @@ public class Helper {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
-                        String encodedImage = user.getImage();
-                        if (!encodedImage.isEmpty()) {
-                            byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            user.setImage(encodeImage(activity,bitmap, 15 ));
-                            Map<String, String> profileInfo = getUserInfoInMap(user);
-                            addToSharedPreferences(activity, profileInfo);
+                        if(dataSnapshot.exists()) {
+                            User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                            String encodedImage = user.getImage();
+                            if (!encodedImage.isEmpty()) {
+                                byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                user.setImage(encodeImage(activity, bitmap, 50));
+                                Map<String, String> profileInfo = getUserInfoInMap(user);
+                                addToSharedPreferences(activity, profileInfo);
+
+                            }
                         }
                     }
 
