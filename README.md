@@ -91,7 +91,8 @@ I developed algorithm to set up the approximate destination size of an image aft
 
 -Authentication facility via email and password.
 
-
+**Rotation Support:**
+This app supports phone rotation via having portrait and landscape layouts. The appropriate layout is set according to the phone orientation at runtime by using a method in the Helper class that analyses the caller activity and uses the Reflection to get the required fields from the R class which represent the layouts themselves.
 
 **Approach Adopted for Persistence:**
 
