@@ -52,55 +52,55 @@ https://github.com/John-Almardeny/selfie_competition
 
 **App Functionality**
 
-*Splash Screen: Logo for app, asynchronous checking with database for the conditional login (first time signin, kept signedin, joined but not verified or not registered..etc).
+* Splash Screen: Logo for app, asynchronous checking with database for the conditional login (first time signin, kept signedin, joined but not verified or not registered..etc).
 
-*Register: Create a new user account and join the WIT Community (ask for valid email and password(repeated) and send verification link to the user email and inform the user on app. Temporarily I commented out the checking for `@wit.ie` suffix in the email to allow testing for now.
+* Register: Create a new user account and join the WIT Community (ask for valid email and password(repeated) and send verification link to the user email and inform the user on app. Temporarily I commented out the checking for `@wit.ie` suffix in the email to allow testing for now.
 
-*SignIn: Sign in with email and password, validate and interact accordingly.
+* SignIn: Sign in with email and password, validate and interact accordingly.
 
-*Forgot Password: Send a reset password link to user's email if they are already registered.
+* Forgot Password: Send a reset password link to user's email if they are already registered.
 
-*Update Password: Validate current password and update it.
+* Update Password: Validate current password and update it.
 
-*First-time Profile Setup: After the very first login, it asks for basic user information before allowing join the community as it's mandatory to know the users because they submit images.
+* First-time Profile Setup: After the very first login, it asks for basic user information before allowing join the community as it's mandatory to know the users because they submit images.
 
-*Main: Main Activity with a Drawer Navigation, fully interactive and intuitive.
+* Main: Main Activity with a Drawer Navigation, fully interactive and intuitive.
 
-*Profile: It shows editable user's information and changeable profile picture.
+* Profile: It shows editable user's information and changeable profile picture.
 
-*Settings: Change the App Theme. Change and Update The Password. Close and Delete the User Account. About WIT Seflie Competition App.
+* Settings: Change the App Theme. Change and Update The Password. Close and Delete the User Account. About WIT Seflie Competition App.
 
-*Competition: TO-DO in CA2 with additional DB Collections and Nodes.
+* Competition: TO-DO in CA2 with additional DB Collections and Nodes.
 
-*Gallery: TO-DO in CA2 with additional DB Collections and Nodes.
+* Gallery: TO-DO in CA2 with additional DB Collections and Nodes.
 
-*User: A Model Class to represent User Collection in Database for JSON implementation and manipulation (Read, Update, Delete, Create).
+* User: A Model Class to represent User Collection in Database for JSON implementation and manipulation (Read, Update, Delete, Create).
 
-*SharedPreferences Listener: NOTE THIS IS NOT USED ANYMORE. KEPT FOR ANY FUTURE USAGE - I developed a way to listen to the updates in values by given list of fields in a given shared preferences file then invoke a given method wrapped by Callable once all fields are updated.
+* SharedPreferences Listener: NOTE THIS IS NOT USED ANYMORE. KEPT FOR ANY FUTURE USAGE - I developed a way to listen to the updates in values by given list of fields in a given shared preferences file then invoke a given method wrapped by Callable once all fields are updated.
 
-*Helper: Contains Load of public static methods I developed specifically to accelerate, ease and compact the work, also to avoid loads of duplicates of code among different activities and classes (i.e. for best coding practice).
+* Helper: Contains Load of public static methods I developed specifically to accelerate, ease and compact the work, also to avoid loads of duplicates of code among different activities and classes (i.e. for best coding practice).
 
-*EditTextViewListener: A workaround I developed to listen to the text changes in a given `EditText`/`TextView` and calculate the required width to keep the `imageView`(icon) shown on the side of `EditText`/`TextView` Also set the proper `EditText`/`TextView` Width `onCreate()` so it also covers when phone rotates. It accepts `LinearLayout` and `RelativeLayout` as parent, if parent is `null`, that means the parent is the phone screen itself.
+* EditTextViewListener: A workaround I developed to listen to the text changes in a given `EditText`/`TextView` and calculate the required width to keep the `imageView`(icon) shown on the side of `EditText`/`TextView` Also set the proper `EditText`/`TextView` Width `onCreate()` so it also covers when phone rotates. It accepts `LinearLayout` and `RelativeLayout` as parent, if parent is `null`, that means the parent is the phone screen itself.
 
-*Course: All courses in WIT 2018 as `enum`. Please refer to my Gist on https://gist.github.com/John-Almardeny/54a4fcc43f8358ef88c9d2288a8a9cdf
+* Course: All courses in WIT 2018 as `enum`. Please refer to my Gist on https://gist.github.com/John-Almardeny/54a4fcc43f8358ef88c9d2288a8a9cdf
 
-*DoWithData: A workaround I developed to Execute Function(s)/Block of codes on specific data after fetching them from Database as that happen asynchronously so cannot be returned.
+* DoWithData: A workaround I developed to Execute Function(s)/Block of codes on specific data after fetching them from Database as that happen asynchronously so cannot be returned.
 
-*DoWithDataException: Custom Exception for DoWithData Class.
+* DoWithDataException: Custom Exception for DoWithData Class.
 
 
 **Highlights:**
 
-*I developed an algorithm to set up the approximate destination size of a given image after compressing it from Bitmap to JPEG by practically calculating in reverse order the JPEG Depth used by Android. So it can encode different versions of bitmaps into `64Based String` that can be saved locally (in `SharedPreferences`) or on the cloud (as `Firebase` only allow for up to 10MB size as `String` value).
+* I developed an algorithm to set up the approximate destination size of a given image after compressing it from Bitmap to JPEG by practically calculating in reverse order the JPEG Depth used by Android. So it can encode different versions of bitmaps into `64Based String` that can be saved locally (in `SharedPreferences`) or on the cloud (as `Firebase` only allow for up to 10MB size as `String` value).
 
-*The user has the option to Take a Selfie Picture or Upload a Picture from phone interactively via clicking on the profile image. 
+* The user has the option to Take a Selfie Picture or Upload a Picture from phone interactively via clicking on the profile image. 
 
 
 **Database:**
 
-*On-the-Cloud Firebase database contains -currently- one `Users` collection with many nodes sorted according to the unique `userId`, under each there is the user model in `JOSN` format.
+* On-the-Cloud Firebase database contains -currently- one `Users` collection with many nodes sorted according to the unique `userId`, under each there is the user model in `JOSN` format.
 
-*Authentication facility via using email and password.
+* Authentication facility via using email and password.
 
 
 **Rotation Support:**
@@ -112,13 +112,14 @@ The appropriate layout is set according to the phone orientation at runtime by u
 **Approach Adopted for Persistence:**
 
 I used the `SharedPreferences` to save and retrieve persistent key-value pairs of primitive data type for the user information and the different size of `64Based` Encoded Images.<br>
-I followed most of the Android Lint suggestions to maintain persistent code style and improve performance in addition to locking and unlocking the views based on the type of the implementation (synchronous / asynchronous). 
+I followed most of the Android Lint suggestions to maintain persistent code style and improve performance in addition to locking and unlocking the views based on the type of the implementation (synchronous / asynchronous).<br>
+The user can choose from a drop-down menu that contains all the available courses in WIT 2018 when they register. That will prevent dumb data and make it easier maintain consistency in Courses names and users' information. 
 
 
 **References:**
 
-*Firebase Documentation at: https://firebase.google.com/docs/guides/
+* Firebase Documentation at: https://firebase.google.com/docs/guides/
 
-*Android Documentation at: https://developer.android.com/guide/index.html
+* Android Documentation at: https://developer.android.com/guide/index.html
 
 
