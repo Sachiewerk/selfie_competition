@@ -1,10 +1,10 @@
-**Developer Name:** Yahya Almardeny.
+**Name:** Yahya Almardeny.
 
-**Student ID:** 20072732.
+**ID:** 20072732.
 
 **Project Name:** WIT Selfie Competition.
 
-**Version:** 0.1
+**Version:** 1.0
 
 **Date:** 16/03/2018
  
@@ -21,7 +21,7 @@ This Selfie Competition App shall add some social value to the students’ life 
 
 **App Structure:**
 
-Current Overall Structure: 6 *Activities*, 4 *Fragments* and 6 *Models*.
+Current Overall Structure: 6 *Activities*, 4 *Fragments* and 8 *Models*.
 
 
 **GUI Design:**
@@ -42,8 +42,8 @@ Please refer to the related Gist at: https://gist.github.com/John-Almardeny
 
 **Git Logs** (Please refer to https://github.com/John-Almardeny/selfie_competition/pulse/monthly):
 
-1 author has pushed 12 commits to master and 12 commits to all branches.<br> 
-On master, 96 files have changed and there have been 5,608 additions and 125 deletions.
+1 author has pushed 19 commits to master and 19 commits to all branches. <br>
+On master, 95 files have changed and there have been 5,030 additions and 425 deletions.
 
 **Github Repository URL:**
  

@@ -709,17 +709,19 @@ public class Helper {
 
     /**
      * Copy the current user's info from database
-     * to the SharedPreferences
+     * to the SharedPreferences and execute a job
+     * after finish
      * @param activity
+     * @param postCopy
      */
-    public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity){
+    public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity, final Callable<Void> postCopy){
 
         FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
                 equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
+                        if (dataSnapshot.exists()) {
                             User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
                             String encodedImage = user.getImage();
                             if (!encodedImage.isEmpty()) {
@@ -728,11 +730,14 @@ public class Helper {
                                 user.setImage(encodeImage(activity, bitmap, 50));
                                 Map<String, String> profileInfo = getUserInfoInMap(user);
                                 addToSharedPreferences(activity, profileInfo);
-
                             }
                         }
+                        try {
+                            postCopy.call();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {}
                 });
@@ -819,7 +824,7 @@ public class Helper {
      * @param activity
      * @return
      */
-    public static boolean sharedPreferencesExists(Activity activity) {
+    public static boolean sharedPreferencesDataExists(Activity activity) {
         SharedPreferences pref = getCurrentUserSharedPreferences(activity);
 
         return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&

@@ -73,7 +73,7 @@ public class Login extends AppCompatActivity {
                                     if (task.isSuccessful()) { // if logged in successfully
                                         // check if verified
                                         if(Helper.isLoggedInVerifiedUser(Login.this, true)){
-                                            if(Helper.sharedPreferencesExists(Login.this)){
+                                            if(Helper.sharedPreferencesDataExists(Login.this)){
                                                 Helper.redirect(Login.this, Main.class, false);
                                             }
                                             else{
