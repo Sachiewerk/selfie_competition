@@ -24,6 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,7 +40,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
+
 
 
 public class Main extends AppCompatActivity
@@ -54,12 +56,16 @@ public class Main extends AppCompatActivity
     private NavigationView navigationView;
     private Dialog progressBar;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -67,23 +73,25 @@ public class Main extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
+
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        progressBar = Helper.onTopProgressBar(this);
+        progressBar = App.onTopProgressBar(this);
         /************** Navigation Drawer *****************/
         View header = navigationView.getHeaderView(0);
         navigationView.setCheckedItem(R.id.nav_profile);
         navigationView.getMenu().performIdentifierAction(R.id.nav_profile, 0);
 
         LinearLayout headerContainer = header.findViewById(R.id.header);
-        String color = Helper.getCurrentUserSharedPreferences(Main.this).getString("color", "Blue");
-        Helper.changeHeaderImageTheme(color, headerContainer, toolbar);
+        String color = App.getCurrentUserSharedPreferences(Main.this).getString("color", "Blue");
+        App.changeHeaderImageTheme(color, headerContainer, toolbar);
 
         TextView fullNameTextView = header.findViewById(R.id.fullNameTextView);
         profileImage =  header.findViewById(R.id.profileImage);
 
-        Helper.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
+        App.setPersonalImageAndName(Main.this, fullNameTextView, profileImage);
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +106,7 @@ public class Main extends AppCompatActivity
                                 // if granted, go ahead and take the pic
                                 // otherwise, a permission request is sent and should be handled
                                 // in the onRequestPermissionsResult() method
-                                if(Helper.grantPermission(Main.this, PERMISSION_CODE)){
+                                if(App.grantPermission(Main.this, PERMISSION_CODE)){
                                     takePicture();
                                 }
                                 break;
@@ -185,26 +193,26 @@ public class Main extends AppCompatActivity
                             e.getLocalizedMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(Main.this,uri, 50);
+                    final String thumbnail = App.encodeImage(Main.this,uri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
-                    Helper.addToSharedPreferences(Main.this,thumbnailInfo);
+                    App.addToSharedPreferences(Main.this,thumbnailInfo);
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             refreshProfilePicFrag();
-                            profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profileImage.setImageBitmap(App.decodeImage(thumbnail));
                             profileImage.setVisibility(View.VISIBLE);
                             progressBar.dismiss();
 
                         }
                     });
 
-                    final String databaseImg = Helper.encodeImage(Main.this,uri, 1200);
+                    final String databaseImg = App.encodeImage(Main.this,uri, 1200);
                     Map<String, String> databaseImgInfo = new HashMap<>();
                     databaseImgInfo.put("image", databaseImg);
-                    Helper.addToDatabase(Main.this,"Users", databaseImgInfo, "Failed to add image to database!");
+                    App.addToDatabase(Main.this,"Users", databaseImgInfo, "Failed to add image to database!");
 
                 }
             });
@@ -219,17 +227,17 @@ public class Main extends AppCompatActivity
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(Main.this,imageUri, 50);
+                    final String thumbnail = App.encodeImage(Main.this,imageUri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
-                    Helper.addToSharedPreferences(Main.this,thumbnailInfo);
+                    App.addToSharedPreferences(Main.this,thumbnailInfo);
 
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             refreshProfilePicFrag();
-                            profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profileImage.setImageBitmap(App.decodeImage(thumbnail));
                             profileImage.setVisibility(View.VISIBLE);
                             progressBar.dismiss();
                         }
@@ -237,10 +245,10 @@ public class Main extends AppCompatActivity
 
 
 
-                    final String original = Helper.encodeImage(Main.this,imageUri, 1200);
+                    final String original = App.encodeImage(Main.this,imageUri, 1200);
                     Map<String, String> originalInfo = new HashMap<>();
                     originalInfo.put("image", original);
-                    Helper.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
+                    App.addToDatabase(Main.this,"Users", originalInfo, "Failed to add image to database!");
                 }
             });
             thread.start();
@@ -255,11 +263,6 @@ public class Main extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_search) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -298,7 +301,7 @@ public class Main extends AppCompatActivity
 
             } else if (id == R.id.nav_signout) {
                 FirebaseAuth.getInstance().signOut();
-                Helper.redirect(Main.this, Login.class, false);
+                App.redirect(Main.this, Login.class, false);
                 return true;
             }
 
@@ -348,15 +351,6 @@ public class Main extends AppCompatActivity
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-
-
     /**
      * Refresh the profile picture in the profile fragment
      * when user changes it from the navigation header
@@ -367,8 +361,8 @@ public class Main extends AppCompatActivity
                     .findFragmentByTag("fragmentProfile")
                     .getView().findViewById(R.id.profilePic);
             profilePic.setImageBitmap(
-                    Helper.decodeImage(
-                            Helper.getCurrentUserSharedPreferences(Main.this).getString("image", "")));
+                    App.decodeImage(
+                            App.getCurrentUserSharedPreferences(Main.this).getString("image", "")));
         }
     }
 
@@ -393,7 +387,7 @@ public class Main extends AppCompatActivity
         }
         catch (IOException e) {
             picFile.delete();
-            Helper.showMessage(this,"Error!", "Could not save image", false);
+            App.showMessage(this,"Error!", "Could not save image", false);
         }
 
     }
@@ -405,5 +399,6 @@ public class Main extends AppCompatActivity
         gallery.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(gallery, LOAD_IMAGE_CODE);
     }
+
 
 }

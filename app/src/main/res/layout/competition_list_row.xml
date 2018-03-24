@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingBottom="@dimen/row_padding_vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/row_padding_vertical">
+
+    <TextView
+        android:id="@+id/compName"
+        android:layout_width="@dimen/_225sdp"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textSize="@dimen/_16ssp"
+        android:text="Selfie on Green"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/compCloseDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10ssp"
+        android:textSize="@dimen/_12ssp"
+        android:text="Close on 10/03/2018"
+        android:textColor="@color/darkGrey"
+        app:layout_constraintTop_toBottomOf="@id/compName"/>
+
+    <ImageView
+        android:id="@+id/compOpenImage"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:src="@drawable/open"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="invisible"
+        />
+
+</android.support.constraint.ConstraintLayout>

@@ -105,7 +105,7 @@ public class EditTextViewListener implements TextWatcher {
                 + editIcon.getPaddingRight() + editIcon.getPaddingLeft() : 0;
 
         UPPER_BOUND_WIDTH = (parent==null)?
-                Helper.getScreenWidth() - (editIcon.getWidth() + extras)
+                App.getScreenWidth() - (editIcon.getWidth() + extras)
                 : parent.getWidth() - editIcon.getMeasuredWidth() + extras;
     }
 

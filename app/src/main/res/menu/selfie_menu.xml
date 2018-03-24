@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/border_shadow">
+
+    <item
+        android:id="@+id/showProfileItem"
+        android:title="@string/show_profile"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/reportItem"
+        android:title="@string/report_pic"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/deleteItem"
+        android:title="@string/delete_pic"
+        app:showAsAction="never"/>
+
+
+</menu>

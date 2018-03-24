@@ -40,11 +40,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import ie.wit.witselfiecompetition.model.App;
 import ie.wit.witselfiecompetition.model.Course;
 import ie.wit.witselfiecompetition.model.DoWithDatabase;
 import ie.wit.witselfiecompetition.model.DoWithDatabaseException;
 import ie.wit.witselfiecompetition.model.EditTextViewListener;
-import ie.wit.witselfiecompetition.model.Helper;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -129,7 +129,7 @@ public class ProfileFragment extends Fragment {
         discardGender  = getView().findViewById(R.id.settingsDiscardGender);
         saveAboutMe  = getView().findViewById(R.id.settingsSaveAboutMe);
         discardAboutMe  = getView().findViewById(R.id.settingsDiscardAboutMe);
-        progressbar = Helper.onTopProgressBar(getActivity());
+        progressbar = App.onTopProgressBar(getActivity());
     }
 
 
@@ -137,7 +137,7 @@ public class ProfileFragment extends Fragment {
      * Fill view with exist data
      */
     private void fillView(){
-        SharedPreferences pref = Helper.getCurrentUserSharedPreferences(getActivity());
+        SharedPreferences pref = App.getCurrentUserSharedPreferences(getActivity());
         name  = pref.getString("fName", "") + " " + pref.getString("lName", "");
         fullName.setText(name);
         gender = pref.getString("gender", "");
@@ -157,7 +157,7 @@ public class ProfileFragment extends Fragment {
                     break;
             }
         } else {
-            profilePic.setImageBitmap(Helper.decodeImage(image));
+            profilePic.setImageBitmap(App.decodeImage(image));
         }
     }
 
@@ -182,7 +182,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 toggleFocusable(fullName);
-                Helper.toggleExistence(fullNameEditIcon, changesControlFullName);
+                App.toggleExistence(fullNameEditIcon, changesControlFullName);
             }
         });
 
@@ -190,8 +190,8 @@ public class ProfileFragment extends Fragment {
         saveFullName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Helper.isValidNameToast(getActivity(),fullName, "Name")) {
-                    Helper.hideSoftKeyboard(getActivity(), v);
+                if(App.isValidNameToast(getActivity(),fullName, "Name")) {
+                    App.hideSoftKeyboard(getActivity(), v);
                     progressbar.show();
                     final String fullN = fullName.getText().toString().trim();
                     int firstSpace = fullN.indexOf(" ");
@@ -205,15 +205,15 @@ public class ProfileFragment extends Fragment {
                         public Void call() throws Exception {
                             TextView fullNameTV = getActivity().findViewById(R.id.fullNameTextView);
                             fullNameTV.setText(fullN);
-                            Helper.addToSharedPreferences(getActivity(), data);
+                            App.addToSharedPreferences(getActivity(), data);
                             toggleFocusable(fullName);
-                            Helper.toggleExistence(fullNameEditIcon, changesControlFullName);
+                            App.toggleExistence(fullNameEditIcon, changesControlFullName);
                             progressbar.cancel();
                             return null;
                         }
                     };
 
-                    Helper.addToDatabase("Users", data, onSucceed, onFailure);
+                    App.addToDatabase("Users", data, onSucceed, onFailure);
                 }
             }
         });
@@ -224,7 +224,7 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 fullName.setText(name);
                 toggleFocusable(fullName);
-                Helper.toggleExistence(fullNameEditIcon, changesControlFullName);
+                App.toggleExistence(fullNameEditIcon, changesControlFullName);
             }
         });
 
@@ -234,8 +234,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 course = courseTextView.getText().toString();
-                Helper.toggleExistence(courseTextView, coursesMenu);
-                Helper.toggleExistence(courseEditIcon, changesControlCourse);
+                App.toggleExistence(courseTextView, coursesMenu);
+                App.toggleExistence(courseEditIcon, changesControlCourse);
                 List<String> courses = new ArrayList<String>();
                 courses.addAll(Arrays.asList(Course.courses()));
                 String currentCourse = courseTextView.getText().toString();
@@ -257,15 +257,15 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public Void call() throws Exception {
                         courseTextView.setText(newCourse);
-                        Helper.addToSharedPreferences(getActivity(), "course", newCourse);
-                        Helper.toggleExistence(courseTextView, coursesMenu);
-                        Helper.toggleExistence(courseEditIcon, changesControlCourse);
+                        App.addToSharedPreferences(getActivity(), "course", newCourse);
+                        App.toggleExistence(courseTextView, coursesMenu);
+                        App.toggleExistence(courseEditIcon, changesControlCourse);
                         progressbar.cancel();
                         return null;
                     }
                 };
 
-                Helper.addToDatabase("Users", "course", newCourse, onSucceed, onFailure);
+                App.addToDatabase("Users", "course", newCourse, onSucceed, onFailure);
             }
         });
 
@@ -274,8 +274,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 courseTextView.setText(course);
-                Helper.toggleExistence(courseTextView, coursesMenu);
-                Helper.toggleExistence(courseEditIcon, changesControlCourse);
+                App.toggleExistence(courseTextView, coursesMenu);
+                App.toggleExistence(courseEditIcon, changesControlCourse);
             }
         });
 
@@ -283,8 +283,8 @@ public class ProfileFragment extends Fragment {
         genderEditIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Helper.toggleExistence(genderTextView, genderRadioGroup);
-                Helper.toggleExistence(genderEditIcon, changesControlGender);
+                App.toggleExistence(genderTextView, genderRadioGroup);
+                App.toggleExistence(genderEditIcon, changesControlGender);
                 gender = genderTextView.getText().toString();
                 switch (gender){
                     case "Male":
@@ -310,15 +310,15 @@ public class ProfileFragment extends Fragment {
                     @Override
                     public Void call() throws Exception {
                         genderTextView.setText(gender);
-                        Helper.addToSharedPreferences(getActivity(), "gender", gender);
-                        Helper.toggleExistence(genderTextView, genderRadioGroup);
-                        Helper.toggleExistence(genderEditIcon, changesControlGender);
+                        App.addToSharedPreferences(getActivity(), "gender", gender);
+                        App.toggleExistence(genderTextView, genderRadioGroup);
+                        App.toggleExistence(genderEditIcon, changesControlGender);
                         progressbar.cancel();
                         return null;
                     }
                 };
 
-                Helper.addToDatabase("Users", "gender", gender, onSucceed, onFailure);
+                App.addToDatabase("Users", "gender", gender, onSucceed, onFailure);
             }
         });
 
@@ -327,8 +327,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 genderTextView.setText(gender);
-                Helper.toggleExistence(genderTextView, genderRadioGroup);
-                Helper.toggleExistence(genderEditIcon, changesControlGender);
+                App.toggleExistence(genderTextView, genderRadioGroup);
+                App.toggleExistence(genderEditIcon, changesControlGender);
             }
         });
 
@@ -338,7 +338,7 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 toggleFocusable(aboutMeEditText);
                 aboutMe = aboutMeEditText.getText().toString();
-                Helper.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
+                App.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
             }
         });
 
@@ -346,21 +346,21 @@ public class ProfileFragment extends Fragment {
         saveAboutMe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Helper.hideSoftKeyboard(getActivity(), v);
+                App.hideSoftKeyboard(getActivity(), v);
                 progressbar.show();
                 final String aboutMe = aboutMeEditText.getText().toString();
                 final Callable<Void> onSucceed = new Callable<Void>() {
                     @Override
                     public Void call() throws Exception {
                         toggleFocusable(aboutMeEditText);
-                        Helper.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
-                        Helper.addToSharedPreferences(getActivity(), "aboutMe", aboutMe);
+                        App.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
+                        App.addToSharedPreferences(getActivity(), "aboutMe", aboutMe);
                         progressbar.cancel();
                         return null;
                     }
                 };
 
-                Helper.addToDatabase("Users", "aboutMe", aboutMe, onSucceed, onFailure);
+                App.addToDatabase("Users", "aboutMe", aboutMe, onSucceed, onFailure);
             }
         });
 
@@ -370,7 +370,7 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 aboutMeEditText.setText(aboutMe);
                 toggleFocusable(aboutMeEditText);
-                Helper.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
+                App.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
             }
         });
 
@@ -397,7 +397,7 @@ public class ProfileFragment extends Fragment {
                             public boolean onMenuItemClick(MenuItem item) {
                                 switch (item.getTitle().toString()){
                                     case "Take Picture":
-                                        if(Helper.grantPermission(getActivity(), PERMISSION_CODE)){
+                                        if(App.grantPermission(getActivity(), PERMISSION_CODE)){
                                             takePicture();
                                         }
                                         break;
@@ -413,7 +413,7 @@ public class ProfileFragment extends Fragment {
 
                 });
 
-                String encodedImage = Helper.getCurrentUserSharedPreferences(
+                String encodedImage = App.getCurrentUserSharedPreferences(
                         getActivity()).getString("image", "");
 
                 if(encodedImage.isEmpty()){
@@ -428,7 +428,7 @@ public class ProfileFragment extends Fragment {
                     progressbar.dismiss();
                 }
                 else {
-                    popupProfilePic.setImageBitmap(Helper.decodeImage(encodedImage));
+                    popupProfilePic.setImageBitmap(App.decodeImage(encodedImage));
 
                     // now fetch the image from database (high quality)
                     final DoWithDatabase doWithDatabase = new DoWithDatabase("Users", "image");
@@ -437,7 +437,7 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public Void call() throws Exception {
                             String imageFromDB = doWithDatabase.getValue("image").toString();
-                            popupProfilePic.setImageBitmap(Helper.decodeImage(imageFromDB));
+                            popupProfilePic.setImageBitmap(App.decodeImage(imageFromDB));
                             progressbar.dismiss();
                             return null;
                         }
@@ -470,7 +470,7 @@ public class ProfileFragment extends Fragment {
             view.setClickable(false);
             view.setCursorVisible(false);
             view.clearFocus();
-            Helper.hideSoftKeyboard(getActivity(), view);
+            App.hideSoftKeyboard(getActivity(), view);
         }
         else{
             view.setFocusable(true);
@@ -478,7 +478,7 @@ public class ProfileFragment extends Fragment {
             view.setClickable(true);
             view.setCursorVisible(true);
             view.requestFocus();
-            Helper.showSoftKeyboard(getActivity(), view);
+            App.showSoftKeyboard(getActivity(), view);
         }
     }
 
@@ -522,25 +522,25 @@ public class ProfileFragment extends Fragment {
                             e.getMessage();
                         }
                     }
-                    final String thumbnail = Helper.encodeImage(getActivity(),uri, 50);
+                    final String thumbnail = App.encodeImage(getActivity(),uri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
-                    Helper.addToSharedPreferences(getActivity(),thumbnailInfo);
+                    App.addToSharedPreferences(getActivity(),thumbnailInfo);
 
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             // refresh drawer image
                             ImageView profileImage = getActivity().findViewById(R.id.profileImage);
-                            profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profileImage.setImageBitmap(App.decodeImage(thumbnail));
 
-                            profilePic.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profilePic.setImageBitmap(App.decodeImage(thumbnail));
 
-                            final String databaseImg = Helper.encodeImage(getActivity(),uri, 1200);
+                            final String databaseImg = App.encodeImage(getActivity(),uri, 1200);
                             Map<String, String> databaseImgInfo = new HashMap<>();
                             databaseImgInfo.put("image", databaseImg);
-                            Helper.addToDatabase(getActivity(),"Users", databaseImgInfo, "Failed to add image to database!");
-                            popupProfilePic.setImageBitmap(Helper.decodeImage(databaseImg));
+                            App.addToDatabase(getActivity(),"Users", databaseImgInfo, "Failed to add image to database!");
+                            popupProfilePic.setImageBitmap(App.decodeImage(databaseImg));
                             progressbar.dismiss();
                         }
                     });
@@ -556,10 +556,10 @@ public class ProfileFragment extends Fragment {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    final String thumbnail = Helper.encodeImage(getActivity(),imageUri, 50);
+                    final String thumbnail = App.encodeImage(getActivity(),imageUri, 50);
                     Map<String, String> thumbnailInfo = new HashMap<>();
                     thumbnailInfo.put("image", thumbnail);
-                    Helper.addToSharedPreferences(getActivity(),thumbnailInfo);
+                    App.addToSharedPreferences(getActivity(),thumbnailInfo);
 
 
                     getActivity().runOnUiThread(new Runnable() {
@@ -567,17 +567,17 @@ public class ProfileFragment extends Fragment {
                         public void run() {
 
                             ImageView profileImage = getActivity().findViewById(R.id.profileImage);
-                            profileImage.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profileImage.setImageBitmap(App.decodeImage(thumbnail));
 
-                            profilePic.setImageBitmap(Helper.decodeImage(thumbnail));
+                            profilePic.setImageBitmap(App.decodeImage(thumbnail));
 
-                            final String databaseImg = Helper.encodeImage(getActivity(),imageUri, 1200);
+                            final String databaseImg = App.encodeImage(getActivity(),imageUri, 1200);
 
                             Map<String, String> originalInfo = new HashMap<>();
                             originalInfo.put("image", databaseImg);
-                            Helper.addToDatabase(getActivity(),"Users", originalInfo, "Failed to add image to database!");
+                            App.addToDatabase(getActivity(),"Users", originalInfo, "Failed to add image to database!");
 
-                            popupProfilePic.setImageBitmap(Helper.decodeImage(databaseImg));
+                            popupProfilePic.setImageBitmap(App.decodeImage(databaseImg));
                             progressbar.dismiss();
                         }
                     });
@@ -609,7 +609,7 @@ public class ProfileFragment extends Fragment {
         }
         catch (IOException e) {
             picFile.delete();
-            Helper.showMessage(getActivity(),"Error!", "Could not save image", false);
+            App.showMessage(getActivity(),"Error!", "Could not save image", false);
         }
 
     }

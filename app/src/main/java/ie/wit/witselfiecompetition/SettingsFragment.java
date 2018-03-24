@@ -31,7 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.concurrent.Callable;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
 
 
 /**
@@ -94,7 +94,7 @@ public class SettingsFragment extends Fragment {
         header = navigationView.getHeaderView(0).findViewById(R.id.header);
         toolBar = getActivity().findViewById(R.id.toolbar);
         drawable = new GradientDrawable[]{new GradientDrawable(), new GradientDrawable(),new GradientDrawable()};
-        pb = Helper.onTopProgressBar(getActivity());
+        pb = App.onTopProgressBar(getActivity());
     }
 
     /**
@@ -113,7 +113,7 @@ public class SettingsFragment extends Fragment {
         // clear initial selection
         int initialSelectedPosition = headerColors.getSelectedItemPosition();
         headerColors.setSelection(initialSelectedPosition, false);
-        int color = Helper.getThemeColor(getActivity());
+        int color = App.getThemeColor(getActivity());
         for(GradientDrawable draw : drawable){
             draw.setCornerRadius(25f);
             draw.setColor(color);
@@ -133,9 +133,9 @@ public class SettingsFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String color = colors[i];
                 if(!color.isEmpty()) {
-                    Helper.addToSharedPreferences(getActivity(), "color", colors[i]);
-                    Helper.changeHeaderImageTheme(colors[i], header, toolBar);
-                    int colorValue = Helper.getThemeColor(getActivity());
+                    App.addToSharedPreferences(getActivity(), "color", colors[i]);
+                    App.changeHeaderImageTheme(colors[i], header, toolBar);
+                    int colorValue = App.getThemeColor(getActivity());
                     for (GradientDrawable draw : drawable) {
                         draw.setColor(colorValue);
                     }
@@ -189,7 +189,7 @@ public class SettingsFragment extends Fragment {
         builder.setView(view);
 
         ConstraintLayout deleteAccountDialog = view.findViewById(R.id.deleteAccountDialog);
-        deleteAccountDialog.setBackgroundColor(Helper.getThemeColor(getActivity()));
+        deleteAccountDialog.setBackgroundColor(App.getThemeColor(getActivity()));
 
         final EditText emailET = view.findViewById(R.id.deleteAccountEmail);
         final EditText passwordET = view.findViewById(R.id.deleteAccountPassword);
@@ -222,15 +222,15 @@ public class SettingsFragment extends Fragment {
                                             @Override
                                             public Void call() throws Exception {
                                                 FirebaseAuth.getInstance().getCurrentUser().delete();
-                                                Helper.clearSharedPreferences(getActivity());
+                                                App.clearSharedPreferences(getActivity());
                                                 pb.dismiss();
                                                 dialog.dismiss();
                                                 Toast.makeText(getActivity(), "Your account has been closed successfully !", Toast.LENGTH_LONG).show();
-                                                Helper.redirect(getActivity(), Login.class, false);
+                                                App.redirect(getActivity(), Login.class, false);
                                                 return null;
                                             }
                                         };
-                                        Helper.removeChildNode(null, afterDeleting, "Users");
+                                        App.removeChildNode(null, afterDeleting, "Users");
                                     } else {
                                         pb.dismiss();
                                         Toast.makeText(getActivity(), "Incorrect Email or/and Password!", Toast.LENGTH_LONG).show();
@@ -255,7 +255,7 @@ public class SettingsFragment extends Fragment {
         builder.setView(view);
 
         ConstraintLayout changePasswordDialog = view.findViewById(R.id.changePasswordDialog);
-        changePasswordDialog.setBackgroundColor(Helper.getThemeColor(getActivity()));
+        changePasswordDialog.setBackgroundColor(App.getThemeColor(getActivity()));
 
         final EditText currentPassword = view.findViewById(R.id.currentPassword);
         final EditText newPassword = view.findViewById(R.id.newPassword);
@@ -275,7 +275,7 @@ public class SettingsFragment extends Fragment {
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Helper.isValidPassword(newPassword)){
+                if(App.isValidPassword(newPassword)){
                     String currentPass = currentPassword.getText().toString();
                     final String newPass = newPassword.getText().toString();
                     String repeatPass = repeatPassword.getText().toString();
@@ -297,7 +297,7 @@ public class SettingsFragment extends Fragment {
                                                                 FirebaseAuth.getInstance().signOut();
                                                                 pb.dismiss();
                                                                 dialog.dismiss();
-                                                                Helper.redirect(getActivity(), Login.class, false);
+                                                                App.redirect(getActivity(), Login.class, false);
                                                             } else {
                                                                 pb.dismiss();
                                                                 Toast.makeText(getActivity(), "Error while trying update password!", Toast.LENGTH_LONG).show();

@@ -23,8 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
 
+import ie.wit.witselfiecompetition.model.App;
 import ie.wit.witselfiecompetition.model.Course;
-import ie.wit.witselfiecompetition.model.Helper;
 import ie.wit.witselfiecompetition.model.User;
 
 /**
@@ -49,7 +49,7 @@ public class ProfileSetup extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Helper.setContentAccordingToOrientation(ProfileSetup.this);
+        App.setContentAccordingToOrientation(ProfileSetup.this);
 
         firstNameEditText = findViewById(R.id.firstNameEditText);
         lastNameEditText = findViewById(R.id.lastNameEditText);;
@@ -78,7 +78,7 @@ public class ProfileSetup extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(isValidInput()){
-                    Helper.toggleVisibility(joinButton, profileSetupProgressBar);
+                    App.toggleVisibility(joinButton, profileSetupProgressBar);
                     String fName = firstNameEditText.getText().toString().trim();
                     String lName = lastNameEditText.getText().toString().trim();
                     User user = new User(fName, lName, gender, course, "", "" );
@@ -91,7 +91,7 @@ public class ProfileSetup extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                Helper.redirect(ProfileSetup.this, Login.class, false);
+                App.redirect(ProfileSetup.this, Login.class, false);
             }
         });
 
@@ -135,8 +135,8 @@ public class ProfileSetup extends AppCompatActivity {
     private boolean isValidInput(){
         gender = gender();
         if(gender!=null){
-            if(Helper.isValidName(ProfileSetup.this, firstNameEditText, "first name")){
-                if(Helper.isValidName(ProfileSetup.this, lastNameEditText, "last name")){
+            if(App.isValidName(ProfileSetup.this, firstNameEditText, "first name")){
+                if(App.isValidName(ProfileSetup.this, lastNameEditText, "last name")){
                     return true;
                 }
             }
@@ -160,14 +160,14 @@ public class ProfileSetup extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
-                            Map<String, String> profileData = Helper.getUserInfoInMap(user);
-                            Helper.addToSharedPreferences(ProfileSetup.this, profileData);
-                            Helper.redirect(ProfileSetup.this, Main.class, false);
+                            Map<String, String> profileData = App.getUserInfoInMap(user);
+                            App.addToSharedPreferences(ProfileSetup.this, profileData);
+                            App.redirect(ProfileSetup.this, Main.class, false);
                         }
 
                         else{
                             Toast.makeText(ProfileSetup.this, "Failed to add user", Toast.LENGTH_SHORT).show();
-                            Helper.toggleVisibility(joinButton, profileSetupProgressBar);
+                            App.toggleVisibility(joinButton, profileSetupProgressBar);
                         }
                     }
                 });
@@ -182,7 +182,7 @@ public class ProfileSetup extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
     }
 
 

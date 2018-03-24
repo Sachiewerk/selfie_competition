@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.util.concurrent.Callable;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
 
 
 /**
@@ -24,35 +24,41 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // check the phone orientation and set appropriate layout accordingly
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
 
 
         // run asynchronously while displaying splash screen
         final Thread checkThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if(Helper.hasNetworkConnection(SplashScreen.this)) {
-                    if(Helper.isLoggedInVerifiedUser(SplashScreen.this, false)) {
-                        Helper.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, new Callable<Void>() {
+                if(App.hasNetworkConnection(SplashScreen.this)) {
+                    if(App.isLoggedInVerifiedUser(SplashScreen.this, false)) {
+                        App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
-                                if(Helper.sharedPreferencesDataExists(SplashScreen.this)){
-                                    Helper.redirect(SplashScreen.this, Main.class, false);
+                                if(App.sharedPreferencesDataExists(SplashScreen.this)){
+                                    App.redirect(SplashScreen.this, Main.class, false);
                                 }
                                 else{
-                                    Helper.redirect(SplashScreen.this, ProfileSetup.class, false);
+                                    App.redirect(SplashScreen.this, ProfileSetup.class, false);
                                 }
                                 return null;
                             }
                         });
                     }
                     else{
-                        Helper.redirect(SplashScreen.this, Login.class, false);
+                        App.redirect(SplashScreen.this, Login.class, false);
                     }
                 }
                 else {
-                    Helper.showMessage(SplashScreen.this, "No Internet Connection!",
-                            "Please connect to Network and retry again", true);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            App.showMessage(SplashScreen.this, "No Internet Connection!",
+                                    "Please connect to Network and retry again", true);
+                        }
+                    });
+
                 }
             }
         });
@@ -75,7 +81,7 @@ public class SplashScreen extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
     }
 
 

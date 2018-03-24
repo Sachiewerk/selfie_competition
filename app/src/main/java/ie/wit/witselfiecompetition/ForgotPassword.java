@@ -11,7 +11,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
 
 /**
  * This class to reset the forgotten password on user request
@@ -38,14 +38,14 @@ public class ForgotPassword extends Activity {
             @Override
             public void onClick(View view) {
                 String email = forgotPasswordEmailEditText.getText().toString().trim();
-                if(Helper.hasNetworkConnection(ForgotPassword.this)) {
-                     if(Helper.isValidEmail(forgotPasswordEmailEditText)){
+                if(App.hasNetworkConnection(ForgotPassword.this)) {
+                     if(App.isValidEmail(forgotPasswordEmailEditText)){
                         resetPassword(email);
                      }
                 }
                 else{
-                    Helper.hideSoftKeyboard(ForgotPassword.this, view);
-                    Helper.showMessage(ForgotPassword.this, "Error",
+                    App.hideSoftKeyboard(ForgotPassword.this, view);
+                    App.showMessage(ForgotPassword.this, "Error",
                             "No Internet Connection!", false);
                 }
             }
@@ -59,22 +59,22 @@ public class ForgotPassword extends Activity {
      * @param email
      */
     private void resetPassword(String email){
-        Helper.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
+        App.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
         FirebaseAuth.getInstance().sendPasswordResetEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            //Helper.hideSoftKeyboard(ForgotPassword.this);
-                            Helper.showMessage(ForgotPassword.this, "",
+                            //App.hideSoftKeyboard(ForgotPassword.this);
+                            App.showMessage(ForgotPassword.this, "",
                                     "Reset password link has been sent to your email", true);
                         }
                         else {
-                            Helper.hideSoftKeyboard(ForgotPassword.this, new View(ForgotPassword.this));
-                            Helper.showMessage(ForgotPassword.this, "",
+                            App.hideSoftKeyboard(ForgotPassword.this, new View(ForgotPassword.this));
+                            App.showMessage(ForgotPassword.this, "",
                                     "Unable to send reset password link", true);
                         }
-                        Helper.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
+                        App.toggleVisibility(sendPasswordButton, forgotPasswordProgressBar);
                     }
                 });
     }

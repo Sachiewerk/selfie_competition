@@ -15,7 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
 
 
 /**
@@ -32,7 +32,7 @@ public class Login extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
 
         TextView forgotPasswordTextView = findViewById(R.id.forgotPasswordTextView);
         TextView createAccountTextView = findViewById(R.id.createAccountTextView);
@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
         forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.redirect(Login.this, ForgotPassword.class, true);
+                App.redirect(Login.this, ForgotPassword.class, true);
             }
         });
 
@@ -53,7 +53,7 @@ public class Login extends AppCompatActivity {
         createAccountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Helper.redirect(Login.this, Register.class, true);
+                App.redirect(Login.this, Register.class, true);
             }
         });
 
@@ -62,7 +62,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(isValidLoginForm()) {
-                    Helper.toggleVisibility(signIn, signInProgressBar);
+                    App.toggleVisibility(signIn, signInProgressBar);
                     String email = emailEditText.getText().toString().trim();
                     String password  = passwordEditText.getText().toString().trim();
                     // attempt to sign in
@@ -72,19 +72,19 @@ public class Login extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) { // if logged in successfully
                                         // check if verified
-                                        if(Helper.isLoggedInVerifiedUser(Login.this, true)){
-                                            if(Helper.sharedPreferencesDataExists(Login.this)){
-                                                Helper.redirect(Login.this, Main.class, false);
+                                        if(App.isLoggedInVerifiedUser(Login.this, true)){
+                                            if(App.sharedPreferencesDataExists(Login.this)){
+                                                App.redirect(Login.this, Main.class, false);
                                             }
                                             else{
-                                                Helper.redirect(Login.this, ProfileSetup.class, false);
+                                                App.redirect(Login.this, ProfileSetup.class, false);
                                             }
                                         }
                                     } else {
                                         Toast.makeText(Login.this,
                                                 "Could not sign in\n Incorrect Email or/and Password", Toast.LENGTH_LONG).show();
                                     }
-                                    Helper.toggleVisibility(signIn, signInProgressBar);
+                                    App.toggleVisibility(signIn, signInProgressBar);
                                 }
                             });
                 }
@@ -101,7 +101,7 @@ public class Login extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
     }
 
 
@@ -111,12 +111,12 @@ public class Login extends AppCompatActivity {
      * point out to the error to inform user
      */
     private boolean isValidLoginForm(){
-        if(!Helper.hasNetworkConnection(Login.this)) {
-            Helper.showMessage(Login.this, "Error", "No Internet Connection!", false);
+        if(!App.hasNetworkConnection(Login.this)) {
+            App.showMessage(Login.this, "Error", "No Internet Connection!", false);
             return false;
         }
         boolean flag = true;
-        if(!Helper.isValidEmail(emailEditText)) {
+        if(!App.isValidEmail(emailEditText)) {
             flag = false;
         }
         return flag;

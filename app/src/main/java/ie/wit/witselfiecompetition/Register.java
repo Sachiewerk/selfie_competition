@@ -15,7 +15,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import ie.wit.witselfiecompetition.model.Helper;
+import ie.wit.witselfiecompetition.model.App;
 
 
 /**
@@ -32,7 +32,7 @@ public class Register extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Helper.setContentAccordingToOrientation(Register.this);
+        App.setContentAccordingToOrientation(Register.this);
 
         registerProgressBar = findViewById(R.id.registerProgressBar);
         register = findViewById(R.id.registerButton);
@@ -61,7 +61,7 @@ public class Register extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Helper.setContentAccordingToOrientation(this);
+        App.setContentAccordingToOrientation(this);
     }
 
 
@@ -71,7 +71,7 @@ public class Register extends AppCompatActivity {
      * @param password
      */
     public void registerNewEmail(final String email, String password){
-        Helper.toggleVisibility(register, registerProgressBar);
+        App.toggleVisibility(register, registerProgressBar);
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email.trim(), password.trim())
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -83,7 +83,7 @@ public class Register extends AppCompatActivity {
                         else if (!task.isSuccessful()) {
                             Toast.makeText(Register.this, "Unable to Register, ", Toast.LENGTH_SHORT).show();
                         }
-                        Helper.toggleVisibility(register, registerProgressBar);
+                        App.toggleVisibility(register, registerProgressBar);
                     }
                 });
     }
@@ -99,11 +99,11 @@ public class Register extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Helper.redirectWithMessage(Register.this, Login.class, "",
+                    App.redirectWithMessage(Register.this, Login.class, "",
                                     "A verification link has been sent to your email", true);
                 }
                 else {
-                    Helper.showMessage(Register.this, "Error",
+                    App.showMessage(Register.this, "Error",
                                     "Couldn't send verification link", false);
                 }
             }
@@ -118,8 +118,8 @@ public class Register extends AppCompatActivity {
      * @return
      */
     private boolean isValidRegistration(String pass1, String pass2){
-        if(!Helper.hasNetworkConnection(Register.this)) {
-            Helper.showMessage(Register.this, "Error", "No Internet Connection!", false);
+        if(!App.hasNetworkConnection(Register.this)) {
+            App.showMessage(Register.this, "Error", "No Internet Connection!", false);
             return false;
         }
         boolean flag = true;
@@ -127,10 +127,10 @@ public class Register extends AppCompatActivity {
             Toast.makeText(Register.this, "Passwords don't match", Toast.LENGTH_SHORT).show();
             flag = false;
         }
-        if(!Helper.isValidEmail(emailEditText)) {
+        if(!App.isValidEmail(emailEditText)) {
             flag = false;
         }
-        if(!Helper.isValidPassword(pass1EditText)) {
+        if(!App.isValidPassword(pass1EditText)) {
             flag = false;
         }
 

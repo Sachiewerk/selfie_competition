@@ -48,6 +48,11 @@
         Please use it respectfully!\n\n\n
     Developed By: Yahya Almardeny.\nAll Rights Reserved 2018.\n</string>
 
+    <string name="show_profile">Show Profile</string>
+    <string name="report_pic">Report</string>
+    <string name="delete_pic">Delete</string>
+    <string name="first_submit">Be the first who submit a selfie in this competition</string>
+
 
 
 </resources>

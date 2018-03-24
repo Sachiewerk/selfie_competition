@@ -23,4 +23,8 @@
     <color name="colorCyan">#01aba5</color>
     <color name="colorGrey">#626264</color>
     <color name="colorOrange">#ca7600</color>
+    <color name="White">#FFF</color>
+    <color name="Black">#000</color>
+    <color name="TransparentGrey">#7F000000</color>
+    <color name="Transparent">#00000000</color>
 </resources>

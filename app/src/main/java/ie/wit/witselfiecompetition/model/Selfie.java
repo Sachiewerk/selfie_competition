@@ -1,48 +1,41 @@
 package ie.wit.witselfiecompetition.model;
 
+
+import java.util.List;
+
 /**
  * Selfie Model Class to represent the JSON information
  * about the captured selfie pictures that are submitted
  * to the Selfie Competition in which a user can submit one and only
  * one Selfie for each open competition.
  * Each selfie counts the likes got from other users.
- * The collection of this class in the databasse link between
+ * The collection of this class in the database link between
  * Users and the Competition.
  * Created by yahya Almardeny on 17/03/18.
  */
 
 public class Selfie {
-
-    private int cId;
+    private String cId;
     private String userId;
     private String image;
-    private int like;
+    private List<String> likes;
 
-    public Selfie(int cId, String userId, String image, int like) {
+    public Selfie(String cId, String userId, String image, List<String> likes) {
         this.cId = cId;
         this.userId = userId;
         this.image = image;
-        this.like = like;
+        this.likes = likes;
     }
 
     public Selfie(){}
 
 
-    @Override
-    public String toString() {
-        return "Selfie{" +
-                "cId=" + cId +
-                ", userId='" + userId + '\'' +
-                ", image='" + image + '\'' +
-                ", like=" + like +
-                '}';
-    }
 
-    public int getcId() {
+    public String getcId() {
         return cId;
     }
 
-    public void setcId(int cId) {
+    public void setcId(String cId) {
         this.cId = cId;
     }
 
@@ -62,11 +55,22 @@ public class Selfie {
         this.image = image;
     }
 
-    public int getLike() {
-        return like;
+
+    public List<String> getLikes() {
+        return likes;
     }
 
-    public void setLike(int like) {
-        this.like = like;
+    public void setLikes(List<String> likes) {
+        this.likes = likes;
+    }
+
+    @Override
+    public String toString() {
+        return "Selfie{" +
+                "cId='" + cId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", image='" + image + '\'' +
+                ", likes=" + likes +
+                '}';
     }
 }

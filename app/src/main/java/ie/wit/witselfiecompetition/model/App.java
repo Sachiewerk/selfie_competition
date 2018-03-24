@@ -49,7 +49,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -60,18 +66,18 @@ import static android.content.Context.MODE_PRIVATE;
 
 
 /**
- * This Helper Class to accelerate and ease the work
+ * This App Class to accelerate and ease the work
  * and compact it, also to avoid loads of duplicates
  * of code among different activities and classes
  * Created by Yahya Almardeny on 20/02/18.
  */
 
-public class Helper {
+public class App {
 
 
     /**
      * This method set the appropriate layout
-     * based one the orientation of the mobile phone (Lnadscape vs Portrait)
+     * based one the orientation of the mobile phone (Landscape vs Portrait)
      * Also this method is smart to link the appropriate layout to its activity
      */
     public static void setContentAccordingToOrientation(Activity activity){
@@ -136,7 +142,8 @@ public class Helper {
      * @return
      */
     public static boolean isValidPassword (EditText passwordEditText){
-        String password = passwordEditText.getText().toString().trim();
+
+        String password = String.valueOf(passwordEditText.getText()).trim();
         if(password.isEmpty()){
             passwordEditText.setError(Html.fromHtml("<font color='white'>Password can't be empty</font>"));
             return false;
@@ -301,7 +308,7 @@ public class Helper {
      * @return
      */
     public static boolean isValidNameToast(Activity activity, TextView textView, String field){
-        String name = textView.getText().toString().trim();
+        String name = String.valueOf(textView.getText()).trim();
         if(name.isEmpty()){
            Toast.makeText(activity, field + " cannot be empty", Toast.LENGTH_LONG).show();
             return false;
@@ -944,4 +951,42 @@ public class Helper {
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
+
+
+    /**
+     * compare the given date with now
+     * return true of now is less than
+     * given date (dd/MM/yyyy HH:mm)
+     * @param closeDate
+     * @return
+     * @throws ParseException
+     */
+    public static boolean isAfterNow(String closeDate) throws ParseException{
+        String [] nowSArr = new SimpleDateFormat("dd MM yyyy HH mm", Locale.UK)
+                            .format(new Date())
+                            .split(" ");
+
+        int [] now = new int[nowSArr.length];
+        for(int i=0; i<nowSArr.length; i++) now[i] = Integer.parseInt(nowSArr[i]);
+
+        String [] temp = closeDate.split("/");
+        int [] close = new int[temp.length+2];
+        close[0] = Integer.parseInt(temp[0]);
+        close[1] = Integer.parseInt(temp[1]);
+        close[2] = Integer.parseInt(temp[2].split(" ")[0]);
+        close[3] = Integer.parseInt(temp[2].split(" ")[1].split(":")[0]);
+        close[4] = Integer.parseInt(temp[2].split(" ")[1].split(":")[1]);
+
+        if(now.length!=close.length) throw new ParseException("Two dates format don't match!", 0);
+
+
+        // index 0 : day, 1 : month, 2 : year, 3 : hour, 4 : minutes
+        return (now[2] < close[2]) || (now[2] <= close[2] && ((now[1] < close[1])
+                || (now[1] <= close[1] && ((now[0] < close[0])
+                || (now[0] <= close[0] && ((now[3] < close[3])
+                || (now[3] <= close[3] && ((now[4] < close[4])
+                || ((now[4] > close[4]) ? false : false)))))))));
+    }
+
+
 }

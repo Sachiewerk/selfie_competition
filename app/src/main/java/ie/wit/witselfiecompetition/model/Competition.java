@@ -1,8 +1,6 @@
 package ie.wit.witselfiecompetition.model;
 
 
-import java.util.Date;
-
 /**
  * Competition Model Class to represent JSON data
  * in the database of the Selfie Competition
@@ -12,30 +10,26 @@ import java.util.Date;
  */
 
 public class Competition {
-    private int cId;
+    private String cId;
     private String name;
-    private String desc;
     private String openDate;
     private String closeDate;
-    private String userId;
 
-    public Competition(int cId, String name, String desc, String openDate, String closeDate, String userId) {
+    public Competition(String cId, String name, String openDate, String closeDate) {
         this.cId = cId;
         this.name = name;
-        this.desc = desc;
         this.openDate = openDate;
         this.closeDate = closeDate;
-        this.userId = userId;
     }
 
     public Competition(){}
 
 
-    public int getcId() {
+    public String getcId() {
         return cId;
     }
 
-    public void setcId(int cId) {
+    public void setcId(String cId) {
         this.cId = cId;
     }
 
@@ -47,13 +41,7 @@ public class Competition {
         this.name = name;
     }
 
-    public String getDesc() {
-        return desc;
-    }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
 
     public String getOpenDate() {
         return openDate;
@@ -71,23 +59,14 @@ public class Competition {
         this.closeDate = closeDate;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     @Override
     public String toString() {
         return "Competition{" +
                 "cId=" + cId +
                 ", name='" + name + '\'' +
-                ", desc='" + desc + '\'' +
                 ", openDate=" + openDate +
                 ", closeDate=" + closeDate +
-                ", userId='" + userId + '\'' +
                 '}';
     }
 }
