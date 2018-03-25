@@ -823,6 +823,14 @@ public class App {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
+    /**
+     * Get Mobile Screen Height
+     * @return
+     */
+    public static int getScreenHeight(){
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
 
 
     /**

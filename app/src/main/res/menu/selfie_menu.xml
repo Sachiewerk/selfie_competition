@@ -5,16 +5,19 @@
     <item
         android:id="@+id/showProfileItem"
         android:title="@string/show_profile"
+        android:icon="@drawable/ic_profile"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/reportItem"
         android:title="@string/report_pic"
+        android:icon="@drawable/ic_report"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/deleteItem"
         android:title="@string/delete_pic"
+        android:icon="@drawable/ic_delete"
         app:showAsAction="never"/>
 
 

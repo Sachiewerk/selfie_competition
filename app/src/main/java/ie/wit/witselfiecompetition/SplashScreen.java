@@ -1,5 +1,6 @@
 package ie.wit.witselfiecompetition;
 
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,6 +34,7 @@ public class SplashScreen extends AppCompatActivity {
             public void run() {
                 if(App.hasNetworkConnection(SplashScreen.this)) {
                     if(App.isLoggedInVerifiedUser(SplashScreen.this, false)) {
+                        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
                         App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, new Callable<Void>() {
                             @Override
                             public Void call() throws Exception {
@@ -42,6 +44,7 @@ public class SplashScreen extends AppCompatActivity {
                                 else{
                                     App.redirect(SplashScreen.this, ProfileSetup.class, false);
                                 }
+                                setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                                 return null;
                             }
                         });

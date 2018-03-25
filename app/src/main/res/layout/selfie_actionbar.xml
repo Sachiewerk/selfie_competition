@@ -4,14 +4,36 @@
     android:layout_height="match_parent"
     android:layout_gravity="fill_horizontal" >
 
-    <ImageView
+
+    <FrameLayout
         android:id="@+id/back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:src="@drawable/ic_menu_back"
         android:layout_marginLeft="@dimen/_5sdp"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="@dimen/_5sdp" />
+        android:layout_marginStart="@dimen/_5sdp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_back"/>
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/submit_selfie"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/submit_selfie"
+        android:layout_marginRight="@dimen/_30sdp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/_30sdp"
+        android:layout_marginTop="-2dp"
+        android:clickable="true"
+        android:focusable="true"/>
 
 </RelativeLayout>

@@ -1,6 +1,10 @@
 package ie.wit.witselfiecompetition.model;
 
+import android.app.FragmentManager;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.List;
 
 import ie.wit.witselfiecompetition.R;
+import ie.wit.witselfiecompetition.SelfieNavigator;
 
 /**
  * Custom RecyclerView Adapter Class that accepts
@@ -53,7 +59,7 @@ public class CompetitionsAdapter extends RecyclerView.Adapter<CompetitionsAdapte
 
     @Override
     public void onBindViewHolder(CompViewHolder holder, int position) {
-        Competition competition = competitions.get(position);
+        final Competition competition = competitions.get(position);
         holder.compName.setText(competition.getName());
         String closeDate = competition.getCloseDate();
         try {
@@ -68,7 +74,21 @@ public class CompetitionsAdapter extends RecyclerView.Adapter<CompetitionsAdapte
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        holder.itemView.setOnClickListener(new OnCompetitionClickListener(competition, parent));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.support.v4.app.FragmentManager fragmentManager = parent.getSupportFragmentManager();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("competition", competition);
+                SelfieNavigator selfieNavigator = new SelfieNavigator();
+                selfieNavigator.setArguments(bundle);
+                fragmentManager.beginTransaction().replace(R.id.content_area, selfieNavigator)
+                        .setTransition(FragmentTransaction.TRANSIT_NONE)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
     }
 

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:background="@color/darkGrey"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
@@ -19,8 +20,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:background="@color/darkGrey"
-            android:layout_marginBottom="@dimen/_10sdp">
+            android:layout_marginBottom="@dimen/_15sdp">
 
             <ImageView
                 android:id="@+id/leftArrow"
@@ -31,8 +31,9 @@
                 android:focusable="true"/>
             <ImageView
                 android:id="@+id/selfie"
-                android:layout_width="@dimen/_250sdp"
-                android:layout_height="@dimen/_375sdp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/male"
                 android:clickable="true"
                 android:focusable="true"/>
             <ImageView
@@ -64,11 +65,12 @@
             android:focusable="true" />
 
         <TextView
+            android:id="@+id/likesTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textSize="@dimen/_15ssp"
-            android:text="10"/>
+            android:textColor="@color/colorMain"/>
         </LinearLayout>
 
 
@@ -94,22 +96,6 @@
                 android:textStyle="bold"
                 android:layout_marginStart="@dimen/_10sdp" />
         </LinearLayout>
-
-
-
-        <ImageView
-                android:id="@+id/submit_selfie"
-                android:layout_width="@dimen/_60sdp"
-                android:layout_height="@dimen/_60sdp"
-                android:src="@drawable/submit_selfie_purple"
-                android:focusable="true"
-                android:clickable="true"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_20sdp"/>
 
 
     </RelativeLayout>

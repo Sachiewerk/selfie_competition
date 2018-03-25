@@ -1,6 +1,8 @@
 package ie.wit.witselfiecompetition.model;
 
 
+import java.io.Serializable;
+
 /**
  * Competition Model Class to represent JSON data
  * in the database of the Selfie Competition
@@ -9,7 +11,7 @@ package ie.wit.witselfiecompetition.model;
  * Created by yahya Almardeny on 17/03/18.
  */
 
-public class Competition {
+public class Competition implements Serializable {
     private String cId;
     private String name;
     private String openDate;

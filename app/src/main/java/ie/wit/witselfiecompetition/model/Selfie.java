@@ -15,37 +15,18 @@ import java.util.List;
  */
 
 public class Selfie {
-    private String cId;
-    private String userId;
+    private String uId;
     private String image;
     private List<String> likes;
 
-    public Selfie(String cId, String userId, String image, List<String> likes) {
-        this.cId = cId;
-        this.userId = userId;
+    public Selfie(String uId, String image, List<String> likes) {
+        this.uId = uId;
         this.image = image;
         this.likes = likes;
     }
 
     public Selfie(){}
 
-
-
-    public String getcId() {
-        return cId;
-    }
-
-    public void setcId(String cId) {
-        this.cId = cId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 
     public String getImage() {
         return image;
@@ -64,11 +45,19 @@ public class Selfie {
         this.likes = likes;
     }
 
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
+    }
+
     @Override
     public String toString() {
         return "Selfie{" +
-                "cId='" + cId + '\'' +
-                ", userId='" + userId + '\'' +
+                "uId='" + uId + '\'' +
                 ", image='" + image + '\'' +
                 ", likes=" + likes +
                 '}';

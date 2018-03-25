@@ -60,7 +60,7 @@ public class Main extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -261,11 +261,6 @@ public class Main extends AppCompatActivity
 
 
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
 
@@ -340,6 +335,7 @@ public class Main extends AppCompatActivity
         }
 
     }
+
 
     /**
      * This method is invoked upon
