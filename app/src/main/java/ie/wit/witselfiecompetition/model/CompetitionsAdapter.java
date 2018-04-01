@@ -62,18 +62,15 @@ public class CompetitionsAdapter extends RecyclerView.Adapter<CompetitionsAdapte
         final Competition competition = competitions.get(position);
         holder.compName.setText(competition.getName());
         String closeDate = competition.getCloseDate();
-        try {
-            if(App.isAfterNow(closeDate)){
-                closeDate = "Close on: " + closeDate;
-                holder.compOpenImage.setVisibility(View.VISIBLE);
-            }
-            else{
-                closeDate = "Closed on: " + closeDate;
-            }
-            holder.compCloseDate.setText(closeDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(App.isAfterNow(closeDate)){
+            closeDate = "Close on: " + closeDate;
+            holder.compOpenImage.setVisibility(View.VISIBLE);
         }
+        else{
+            closeDate = "Closed on: " + closeDate;
+        }
+        holder.compCloseDate.setText(closeDate);
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

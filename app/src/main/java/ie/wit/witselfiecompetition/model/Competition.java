@@ -2,6 +2,7 @@ package ie.wit.witselfiecompetition.model;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Competition Model Class to represent JSON data
@@ -16,12 +17,14 @@ public class Competition implements Serializable {
     private String name;
     private String openDate;
     private String closeDate;
+    private List<String> selfiesId;
 
-    public Competition(String cId, String name, String openDate, String closeDate) {
+    public Competition(String cId, String name, String openDate, String closeDate, List<String> selfiesId) {
         this.cId = cId;
         this.name = name;
         this.openDate = openDate;
         this.closeDate = closeDate;
+        this.selfiesId = selfiesId;
     }
 
     public Competition(){}
@@ -61,14 +64,23 @@ public class Competition implements Serializable {
         this.closeDate = closeDate;
     }
 
+    public List<String> getSelfiesId() {
+        return selfiesId;
+    }
+
+    public void setSelfiesId(List<String> selfiesId) {
+        this.selfiesId = selfiesId;
+    }
 
     @Override
     public String toString() {
         return "Competition{" +
-                "cId=" + cId +
+                "cId='" + cId + '\'' +
                 ", name='" + name + '\'' +
-                ", openDate=" + openDate +
-                ", closeDate=" + closeDate +
+                ", openDate='" + openDate + '\'' +
+                ", closeDate='" + closeDate + '\'' +
+                ", selfiesId=" + selfiesId +
                 '}';
     }
+
 }

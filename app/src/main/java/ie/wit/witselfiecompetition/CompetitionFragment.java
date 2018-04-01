@@ -24,6 +24,7 @@ import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -32,12 +33,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import ie.wit.witselfiecompetition.model.Competition;
 import ie.wit.witselfiecompetition.model.CompetitionsAdapter;
-import ie.wit.witselfiecompetition.model.DoWithDatabase;
-import ie.wit.witselfiecompetition.model.DoWithDatabaseException;
+
 
 
 /**
@@ -45,9 +44,10 @@ import ie.wit.witselfiecompetition.model.DoWithDatabaseException;
  */
 public class CompetitionFragment extends Fragment {
 
-     List<Competition> competitionList  = new ArrayList<>();
-     RecyclerView recyclerView;
-     CompetitionsAdapter cAdapter;
+    private List<Competition> competitionList  = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private CompetitionsAdapter cAdapter;
+    private Map<DatabaseReference, ValueEventListener> databaseListeners;
 
     public CompetitionFragment() {}
 
@@ -55,6 +55,7 @@ public class CompetitionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        databaseListeners = new HashMap<>();
 
     }
 
@@ -89,26 +90,44 @@ public class CompetitionFragment extends Fragment {
      * notify data changed after every change
      */
     private void fetchCompetitionData(){
-        FirebaseDatabase.getInstance().getReference().child("Competition")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        competitionList.clear();
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            Competition competition = new Competition();
-                            competition.setcId(child.getKey());
-                            competition.setName(String.valueOf(child.child("name").getValue()));
-                            competition.setOpenDate(String.valueOf(child.child("openDate").getValue()));
-                            competition.setCloseDate(String.valueOf(child.child("closeDate").getValue()));
-                            competitionList.add(competition);
-                        }
-                        Collections.reverse(competitionList);
-                        cAdapter.notifyDataSetChanged();
-                    }
+        DatabaseReference dbr = FirebaseDatabase.getInstance().getReference().child("Competition");
+        ValueEventListener vel = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                competitionList.clear();
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Competition competition = new Competition();
+                    competition.setcId(child.getKey());
+                    competition.setName(String.valueOf(child.child("name").getValue()));
+                    competition.setOpenDate(String.valueOf(child.child("openDate").getValue()));
+                    competition.setCloseDate(String.valueOf(child.child("closeDate").getValue()));
+                    competition.setSelfiesId((List<String>) child.child("selfiesId").getValue());
+                    competitionList.add(competition);
+                }
+                Collections.reverse(competitionList);
+                cAdapter.notifyDataSetChanged();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        };
+        databaseListeners.put(dbr, vel);
+        dbr.addValueEventListener(vel);
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(databaseListeners != null) {
+            for(Map.Entry entry : databaseListeners.entrySet()){
+                DatabaseReference dbr = (DatabaseReference) entry.getKey();
+                ValueEventListener vel = (ValueEventListener) entry.getValue();
+                dbr.removeEventListener(vel);
+            }
+        }
+        Runtime.getRuntime().gc();
+        System.gc();
+    }
+
 
 }

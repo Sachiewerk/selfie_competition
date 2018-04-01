@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -71,6 +72,7 @@ public class ProfileFragment extends Fragment {
     private String name, course, gender, aboutMe, image;
     private Dialog progressbar, imageDialog ;
     private Uri uri;
+    private List<Bitmap> bitmaps;
 
 
     public ProfileFragment() {}
@@ -79,6 +81,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        bitmaps = new ArrayList<>();
     }
 
 
@@ -157,7 +160,9 @@ public class ProfileFragment extends Fragment {
                     break;
             }
         } else {
-            profilePic.setImageBitmap(App.decodeImage(image));
+            Bitmap bitmap = App.decodeImage(image);
+            bitmaps.add(bitmap);
+            profilePic.setImageBitmap(bitmap);
         }
     }
 
@@ -437,7 +442,10 @@ public class ProfileFragment extends Fragment {
                         @Override
                         public Void call() throws Exception {
                             String imageFromDB = doWithDatabase.getValue("image").toString();
-                            popupProfilePic.setImageBitmap(App.decodeImage(imageFromDB));
+                            Bitmap bitmap = App.decodeImage(imageFromDB);
+                            bitmaps.add(bitmap);
+                            popupProfilePic.setImageBitmap(bitmap);
+                            doWithDatabase.removeDatabaseListener();
                             progressbar.dismiss();
                             return null;
                         }
@@ -620,5 +628,20 @@ public class ProfileFragment extends Fragment {
         gallery.setAction(Intent.ACTION_GET_CONTENT);
         gallery.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(gallery, LOAD_IMAGE_CODE);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(bitmaps!=null) {
+            for (Bitmap bitmap : bitmaps) {
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    bitmap.recycle(); // free memory from bitmaps
+                    bitmap = null;
+                }
+            }
+        }
+        Runtime.getRuntime().gc();
+        System.gc();
     }
 }

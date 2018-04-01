@@ -1,17 +1,19 @@
 package ie.wit.witselfiecompetition.model;
 
+import java.io.Serializable;
+
 /**
  * User Model Class to represent User Collection
  * in Database
  * Created by yahya on 21/02/18.
  */
 
-public class User {
+public class User implements Serializable{
     private String fName;
     private String lName;
     private String gender;
     private String course;
-    private String aboutMet;
+    private String aboutMe;
     private String image;
 
     public User(){}
@@ -22,15 +24,15 @@ public class User {
      * @param lName
      * @param gender
      * @param course
-     * @param aboutMet
+     * @param aboutMe
      * @param image
      */
-    public User(String fName, String lName, String gender, String course, String aboutMet, String image) {
+    public User(String fName, String lName, String gender, String course, String aboutMe, String image) {
         this.fName = fName;
         this.lName = lName;
         this.gender = gender;
         this.course = course;
-        this.aboutMet = aboutMet;
+        this.aboutMe = aboutMe;
         this.image = image;
     }
 
@@ -41,7 +43,7 @@ public class User {
                 ", lName='" + lName + '\'' +
                 ", gender=" + gender+
                 ", course=" + course +
-                ", aboutMet='" + aboutMet + '\'' +
+                ", aboutMet='" + aboutMe + '\'' +
                 ", image='" + image + '\'' +
                 '}';
     }
@@ -78,12 +80,12 @@ public class User {
         this.course = course;
     }
 
-    public String getAboutMet() {
-        return aboutMet;
+    public String getAboutMe() {
+        return aboutMe;
     }
 
-    public void setAboutMet(String aboutMet) {
-        this.aboutMet = aboutMet;
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
     }
 
     public String getImage() {

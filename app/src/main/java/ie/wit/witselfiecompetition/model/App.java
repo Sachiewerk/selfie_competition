@@ -177,6 +177,29 @@ public class App {
         dialog.create().show();
     }
 
+    /**
+     * Generic method to display a popup dialog
+     * @param activity
+     * @param title
+     * @param message
+     */
+    public static void showMessage(final Activity activity, String title, String message, final Callable<Void> after){
+        AlertDialog.Builder dialog  = new AlertDialog.Builder(activity, R.style.alertDialog);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                try {
+                    after.call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        dialog.create().show();
+    }
+
 
     /**
      * This method to move to another activity after showing a message
@@ -658,6 +681,16 @@ public class App {
        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
    }
 
+    public static Bitmap decodeImage(String encodedImage, int bitmapSampleSize) {
+        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = bitmapSampleSize;
+        options.inPurgeable = true;
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
+    }
+
+
+
 
     /**
      * Change cover photo upon user's request
@@ -969,7 +1002,7 @@ public class App {
      * @return
      * @throws ParseException
      */
-    public static boolean isAfterNow(String closeDate) throws ParseException{
+    public static boolean isAfterNow(String closeDate){
         String [] nowSArr = new SimpleDateFormat("dd MM yyyy HH mm", Locale.UK)
                             .format(new Date())
                             .split(" ");
@@ -984,9 +1017,6 @@ public class App {
         close[2] = Integer.parseInt(temp[2].split(" ")[0]);
         close[3] = Integer.parseInt(temp[2].split(" ")[1].split(":")[0]);
         close[4] = Integer.parseInt(temp[2].split(" ")[1].split(":")[1]);
-
-        if(now.length!=close.length) throw new ParseException("Two dates format don't match!", 0);
-
 
         // index 0 : day, 1 : month, 2 : year, 3 : hour, 4 : minutes
         return (now[2] < close[2]) || (now[2] <= close[2] && ((now[1] < close[1])
