@@ -119,6 +119,10 @@ public class Login extends AppCompatActivity {
         if(!App.isValidEmail(emailEditText)) {
             flag = false;
         }
+        if(String.valueOf(passwordEditText.getText()).trim().isEmpty()){
+            flag = false;
+            Toast.makeText(getApplicationContext(), "Password cannot be empty!", Toast.LENGTH_SHORT).show();
+        }
         return flag;
     }
 

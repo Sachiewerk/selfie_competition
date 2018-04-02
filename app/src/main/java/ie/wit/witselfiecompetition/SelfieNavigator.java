@@ -122,7 +122,9 @@ public class SelfieNavigator extends Fragment {
     private int selfieMemoryShare = -1;
     private CompetitionDeadlineWatcher competitionDeadlineWatcher;
     private ImageAdapter imageAdapter;
-
+    private TextView title;
+    private DrawerLayout drawer;
+    private boolean OPEN = false;
 
 
     public SelfieNavigator() {}
@@ -189,9 +191,12 @@ public class SelfieNavigator extends Fragment {
                 return null;
             }
         };
+
         competitionDeadlineWatcher = new CompetitionDeadlineWatcher(callable);
-        if(App.isAfterNow(competition.getCloseDate()))
+        if(App.isAfterNow(competition.getCloseDate())) {
+            OPEN = true;
             competitionDeadlineWatcher.execute(competition.getCloseDate());
+        }
     }
 
 
@@ -219,6 +224,7 @@ public class SelfieNavigator extends Fragment {
         selfie_ActionBar = inflater.inflate(R.layout.selfie_actionbar, null);
         back = selfie_ActionBar.findViewById(R.id.back);
         submit_selfie = selfie_ActionBar.findViewById(R.id.submit_selfie);
+        title = selfie_ActionBar.findViewById(R.id.actionbar_title);
 
         // Fragment Selfie
         beFirstLabel = getView().findViewById(R.id.beFirstLabel);
@@ -229,6 +235,7 @@ public class SelfieNavigator extends Fragment {
 
         // Grid view
         selfieGridView = getView().findViewById(R.id.selfieGridView);
+
         selfieGridView.setAdapter(imageAdapter);
 
 
@@ -237,7 +244,12 @@ public class SelfieNavigator extends Fragment {
                 viewPager.setCurrentItem(position);
                 toggleVisibility(viewPager);
                 toggleVisibility(selfieGridView);
-                showMenu();
+                title.getLayoutParams().width = App.getScreenWidth()/2;
+                if(OPEN) {
+                    showMenu("profile", "report", "delete");
+                }else {
+                    showMenu("profile");
+                }
             }
         });
 
@@ -264,12 +276,16 @@ public class SelfieNavigator extends Fragment {
 
         actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
-        DrawerLayout drawer = getActivity().findViewById(R.id.drawer_layout);
+        drawer = getActivity().findViewById(R.id.drawer_layout);
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 getActivity(), drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
 
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
         if (actionBar != null) {
+            title.getLayoutParams().width = (int) (App.getScreenWidth()*0.65);
+            title.setText(competition.getName());
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setCustomView(selfie_ActionBar);
@@ -280,7 +296,8 @@ public class SelfieNavigator extends Fragment {
                     if(viewPager.getVisibility()== View.VISIBLE){
                         toggleVisibility(viewPager);
                         toggleVisibility(selfieGridView);
-                        hideMenu();
+                        title.getLayoutParams().width = (int) (App.getScreenWidth()*0.65);
+                        hideMenu("profile", "report", "delete");
                     }
                     else {
                         actionBar.setDisplayShowCustomEnabled(false);
@@ -305,7 +322,8 @@ public class SelfieNavigator extends Fragment {
                             if(viewPager.getVisibility()== View.VISIBLE){
                                 toggleVisibility(viewPager);
                                 toggleVisibility(selfieGridView);
-                                hideMenu();
+                                title.getLayoutParams().width = (int) (App.getScreenWidth()*0.65);
+                                hideMenu("profile", "report", "delete");
                             }
                             else {
                                 if (actionBar != null) {
@@ -371,11 +389,7 @@ public class SelfieNavigator extends Fragment {
 
         AVAILABLE_MEMORY = Runtime.getRuntime().freeMemory();
 
-        if(App.isAfterNow(competition.getCloseDate())){
-            for(int i=0; i<selfiesId.size(); i++){
-                selfiePagerAdapter.addView(getSelfieViewTemplate());
-                imageAdapter.addView(null);
-            }
+        if(OPEN){
             if(selfiesId.size()==0){
                 beFirstLabel.setVisibility(View.VISIBLE); // it shows text saying "be the first who submit selfie"
             }else{
@@ -383,6 +397,7 @@ public class SelfieNavigator extends Fragment {
             }
 
         }else{ // get the winner only
+            submit_selfie.setVisibility(View.GONE);
             if(selfiesId.size()==0){// if no winner
                 beFirstLabel.setVisibility(View.VISIBLE);
                 TextView selfieNote = getView().findViewById(R.id.selfieNote);
@@ -488,7 +503,8 @@ public class SelfieNavigator extends Fragment {
                             e.getMessage();
                         }
                     }
-
+                    // 500 kb = 0.5 mb
+                    // (500 * 1024 * 8) / 16(bit depth) = 256000 pixel (505*505)px or (5.2*5.2)inch
                     final String encodedSelfie = App.encodeImage(getActivity(), uri, 500);
                     // add it to database
                     final Selfie selfie = new Selfie(USER_ID, encodedSelfie, new ArrayList<String>());
@@ -509,6 +525,7 @@ public class SelfieNavigator extends Fragment {
                                 // add to competition selfiesId
                                 addCurrentUserSelfieToCompetition();
                                 viewPager.setCurrentItem(0);
+                                beFirstLabel.setVisibility(View.GONE);
                                 fullScreenProgressBar.dismiss();
                             }
                         }
@@ -546,6 +563,7 @@ public class SelfieNavigator extends Fragment {
                                 // add to competition selfiesId
                                 addCurrentUserSelfieToCompetition();
                                 viewPager.setCurrentItem(0);
+                                beFirstLabel.setVisibility(View.GONE);
                                 fullScreenProgressBar.dismiss();
                             }
                         }
@@ -566,11 +584,22 @@ public class SelfieNavigator extends Fragment {
               @Override
               public void onDataChange(DataSnapshot dataSnapshot) {
                   if (!halt.get()) {
-                      Selfie selfie = dataSnapshot.getValue(Selfie.class);
+                      final Selfie selfie = dataSnapshot.getValue(Selfie.class);
                       if (selfie != null) {
-                          selfiePagerAdapter.addView(getWinnerSelfieView(selfie));
-                          imageAdapter.addView(bitmaps.get(selfieIndex.get()));
-                          selfieIndex.getAndIncrement();
+                          FirebaseDatabase.getInstance().getReference().child("Users").child(selfie.getuId())
+                                  .addListenerForSingleValueEvent(new ValueEventListener() {
+                                      @Override
+                                      public void onDataChange(DataSnapshot dataSnapshot) {
+                                          User user = dataSnapshot.getValue(User.class);
+                                          selfiePagerAdapter.addView(getWinnerSelfieView(selfie, user));
+                                          imageAdapter.addView(bitmaps.get(selfieIndex.get()));
+                                          selfieIndex.getAndIncrement();
+                                      }
+
+                                      @Override
+                                      public void onCancelled(DatabaseError databaseError) { }
+                                  });
+
                       }
                   }
               }
@@ -588,22 +617,42 @@ public class SelfieNavigator extends Fragment {
 
 
     /**
-     * Hide all menu elements
+     * Hide menu items
      */
-    private void hideMenu() {
-        delete.setVisible(false);
-        report.setVisible(false);
-        profile.setVisible(false);
+    private void hideMenu(String...items) {
+        for(String item : items){
+            switch (item.toUpperCase()){
+                case "PROFILE":
+                    profile.setVisible(false);
+                    break;
+                case "REPORT":
+                    report.setVisible(false);
+                    break;
+                case "DELETE":
+                    delete.setVisible(false);
+                    break;
+            }
+        }
     }
 
 
     /**
      * Show Menu Items
      */
-    private  void showMenu(){
-        delete.setVisible(true);
-        report.setVisible(true);
-        profile.setVisible(true);
+    private void showMenu(String...items) {
+        for(String item : items){
+            switch (item.toUpperCase()){
+                case "PROFILE":
+                    profile.setVisible(true);
+                    break;
+                case "REPORT":
+                    report.setVisible(true);
+                    break;
+                case "DELETE":
+                    delete.setVisible(true);
+                    break;
+            }
+        }
     }
 
 
@@ -630,7 +679,7 @@ public class SelfieNavigator extends Fragment {
         options.inPurgeable = true;
         options.outHeight = App.getScreenHeight();
         options.outWidth = App.getScreenWidth();
-        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        options.inPreferredConfig = Bitmap.Config.RGB_565; // no alpha is required, no transparency factor
         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length, options);
         bitmaps.add(bitmap);
         selfieIm.setImageBitmap(bitmap);
@@ -742,13 +791,12 @@ public class SelfieNavigator extends Fragment {
      * @param selfie
      * @return
      */
-    private View getWinnerSelfieView(final Selfie selfie) {
+    private View getWinnerSelfieView(Selfie selfie, User user) {
         // load view
-        View view = inflater.inflate(R.layout.selfie_view, null);
-        ImageView selfieIm = view.findViewById(R.id.selfie);
-        final ImageView likeIconClicked = view.findViewById(R.id.likeIconClicked);
-        final ImageView likeIcon = view.findViewById(R.id.likeIcon);
-        final TextView likesTextView = view.findViewById(R.id.likesTextView);
+        View view = inflater.inflate(R.layout.winner_view, null);
+        ImageView selfieIm = view.findViewById(R.id.winnerSelfie);
+        final TextView nameTextView = view.findViewById(R.id.winnerNameTextView);
+        final TextView likesTextView = view.findViewById(R.id.winnerLikesTextView);
 
         // decode image string, create bitmap and set it
         byte[] decodedString = Base64.decode(selfie.getImage(), Base64.DEFAULT);
@@ -762,32 +810,18 @@ public class SelfieNavigator extends Fragment {
         bitmaps.add(bitmap);
         selfieIm.setImageBitmap(bitmap);
 
-        // set likes
+        String winnerName = user!=null? "Winner: " +  user.getfName() + " " + user.getlName() + "\n" : "";
+        nameTextView.setText(winnerName);
+
+        // get likes
         final List<String> likes = selfie.getLikes();
         if (likes != null) {
-            likesTextView.setText(String.valueOf(likes.size() > 0 ? likes.size() + " Likes" : likes.size() + " Like"));
-            likeIcon.setVisibility(View.GONE);
-            likeIconClicked.setVisibility(View.GONE);
-            likesTextView.setTextColor(Color.RED);
+            likesTextView.setText(String.valueOf("Likes: " + likes.size()));
         }
 
         return view;
     }
 
-
-    /**
-     * Get Empty Selfie View Template
-     * That shows a progressbar to render it
-     * until the data fetched from database
-     *
-     * @return
-     */
-    private View getSelfieViewTemplate() {
-        inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.selfie_view, null);
-        view.findViewById(R.id.selfieViewProgressbar).setVisibility(View.VISIBLE);
-        return view;
-    }
 
 
     /**
@@ -851,6 +885,7 @@ public class SelfieNavigator extends Fragment {
                     }
                 } else if (!userSubmittedSelfie.get() && temp == null) {
                     // that means my selfie is the last one left
+                    beFirstLabel.setVisibility(View.VISIBLE);
                     back.callOnClick();
                 }
             }
@@ -869,13 +904,12 @@ public class SelfieNavigator extends Fragment {
             m.setOptionalIconsVisible(true);
         }
 
-
         super.onCreateOptionsMenu(menu, inflater);
 
         profile = menu.findItem(R.id.showProfileItem);
         report = menu.findItem(R.id.reportItem);
         delete = menu.findItem(R.id.deleteItem);
-        hideMenu();
+        hideMenu("profile", "report", "delete");
     }
 
 
@@ -916,10 +950,11 @@ public class SelfieNavigator extends Fragment {
                             public Void call() throws Exception {
 
                                 fullScreenProgressBar.show();
+                                DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("Report")
+                                        .child(competition.getcId()).push();
+                                String value = OPEN ? selfiesId.get(viewPager.getCurrentItem()) : winners.get(viewPager.getCurrentItem());
 
-                                FirebaseDatabase.getInstance().getReference().child("Report")
-                                        .child(competition.getcId()).push()
-                                        .setValue(selfiesId.get(viewPager.getCurrentItem()))
+                                root.setValue(value)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -952,13 +987,14 @@ public class SelfieNavigator extends Fragment {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            selfieIndex.decrementAndGet();
-                                            selfiesId.remove(0);
-                                            userSubmittedSelfie.set(false);
-                                            removeCurrentUserSelfieFromCompetition();
                                             selfiePagerAdapter.removeView(viewPager, 0);
                                             imageAdapter.removeView(0);
                                             bitmaps.remove(0);
+                                            selfiesId.remove(0);
+                                            selfieIndex.decrementAndGet();
+                                            userSubmittedSelfie.set(false);
+                                            removeCurrentUserSelfieFromCompetition();
+
                                             //if(bitmap!=null && !bitmap.isRecycled()) bitmap.recycle();
                                             submit_selfie.setVisibility(View.VISIBLE);
                                         } else {
@@ -1049,11 +1085,11 @@ public class SelfieNavigator extends Fragment {
         // calculate the available space in RAM for each selfie
         // consider 50% of RAM as max threshold share for all selfies
         if (selfieMemoryShare == -1) {
-            if(winners==null) {
-                selfieMemoryShare = Math.round(AVAILABLE_MEMORY / (selfiesId.size() * 2));
+            if(OPEN) {
+                selfieMemoryShare = Math.round(AVAILABLE_MEMORY / ((selfiesId.size()+1) * 2));
             }
             else{
-                selfieMemoryShare = Math.round(AVAILABLE_MEMORY / (winners.size() * 2));
+                selfieMemoryShare = Math.round(AVAILABLE_MEMORY / ((winners.size()+1) * 2));
             }
         }
         // assign the maximum number in case of error
@@ -1126,9 +1162,10 @@ public class SelfieNavigator extends Fragment {
     private void showProfile() {
 
         fullScreenProgressBar.show();
-        submit_selfie.setVisibility(View.INVISIBLE);
-        DatabaseReference dbr = FirebaseDatabase.getInstance().getReference().child("Users")
-                .child(selfiesId.get(viewPager.getCurrentItem()));
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("Users");
+        DatabaseReference dbr = OPEN ? root.child(selfiesId.get(viewPager.getCurrentItem())) :
+                                root.child(winners.get(viewPager.getCurrentItem()));
+
 
         ValueEventListener vel = new ValueEventListener() {
             @Override
@@ -1154,11 +1191,13 @@ public class SelfieNavigator extends Fragment {
     }
 
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         competitionDeadlineWatcher.cancel(true);
         competitionDeadlineWatcher.cancelWatcher();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         cleanMemory();
     }
 
@@ -1177,12 +1216,11 @@ public class SelfieNavigator extends Fragment {
                     if (!halt.get()) {
                         Selfie selfie = dataSnapshot.getValue(Selfie.class);
                         if (selfie != null) {
-                            selfiePagerAdapter.setView(getSelfieView(selfie),selfieIndex.get());
-                            imageAdapter.setView(bitmaps.get(selfieIndex.get()), selfieIndex.getAndIncrement());
+                            selfiePagerAdapter.addView(getSelfieView(selfie));
+                            imageAdapter.addView(bitmaps.get(selfieIndex.get()));
+                            selfieIndex.getAndIncrement();
                         } else {// in case a user deleted it
                             selfiesId.remove(selfieIndex.get());
-                            selfiePagerAdapter.removeView(viewPager, selfieIndex.get());
-                            imageAdapter.removeView(selfieIndex.get());
                         }
                         fetchSelfie();
                     }

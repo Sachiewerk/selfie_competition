@@ -17,6 +17,7 @@ import ie.wit.witselfiecompetition.R;
 
 
 /**
+ * Adapter for the Gallery / GridView Images
  * Created by yahya Almardeny on 31/03/18.
  */
 
@@ -25,10 +26,12 @@ public class ImageAdapter extends BaseAdapter {
     private List<Bitmap> bitmaps;
     private LayoutInflater inflater;
 
+
     public ImageAdapter(Context context) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         bitmaps = new ArrayList<>();
     }
+
 
     public int getCount() {
         if(bitmaps!=null){
@@ -38,9 +41,11 @@ public class ImageAdapter extends BaseAdapter {
         }
     }
 
+
     public Object getItem(int position) {
         return bitmaps.get(position);
     }
+
 
     public long getItemId(int position) {
         return position;
@@ -48,8 +53,8 @@ public class ImageAdapter extends BaseAdapter {
 
 
     public View getView(int position, View convertView, ViewGroup parent) {
-       /* View view = convertView;
-        ViewHolder holder;
+       View view = convertView;
+       ViewHolder holder;
         if(convertView == null){
             view = inflater.inflate(R.layout.one_selfie, parent, false);
             holder = new ViewHolder(view);
@@ -58,13 +63,9 @@ public class ImageAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
         holder.oneSelfie.setImageBitmap(bitmaps.get(position));
-
-        return view;*/
-        View view = inflater.inflate(R.layout.one_selfie, parent, false);
-        ImageView oneSelfie =  view.findViewById(R.id.oneSelfie);
-        ProgressBar oneSelfieProgressbar = view.findViewById(R.id.oneSelfieProgressbar);
-        oneSelfie.setImageBitmap(bitmaps.get(position));
-
+        GridView grid = (GridView)parent;
+        int size = grid.getColumnWidth();
+        view.setLayoutParams(new GridView.LayoutParams(size, size));
         return view;
     }
 
@@ -74,20 +75,18 @@ public class ImageAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+
     public void addView(Bitmap bitmap, int position){
         this.bitmaps.add(position, bitmap);
         notifyDataSetChanged();
     }
+
 
     public void removeView(int position){
         bitmaps.remove(position);
         notifyDataSetChanged();
     }
 
-    public void setView(Bitmap bitmap, int position){
-        this.bitmaps.set(position, bitmap);
-        notifyDataSetChanged();
-    }
 
     public void format(){
         if(bitmaps!=null){
@@ -104,11 +103,9 @@ public class ImageAdapter extends BaseAdapter {
 
     private static class ViewHolder{
         ImageView oneSelfie;
-        ProgressBar oneSelfieProgressbar;
 
         ViewHolder(View view){
             oneSelfie =  view.findViewById(R.id.oneSelfie);
-            oneSelfieProgressbar = view.findViewById(R.id.oneSelfieProgressbar);
         }
     }
 

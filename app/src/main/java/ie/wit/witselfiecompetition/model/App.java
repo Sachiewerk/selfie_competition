@@ -36,8 +36,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -134,6 +136,8 @@ public class App {
     }
 
 
+
+
     /**
      * This method to validate the password input
      * Password can't be empty and must be at least 8 characters long
@@ -158,6 +162,8 @@ public class App {
     }
 
 
+
+
     /**
      * Generic method to display a popup dialog
      * @param activity
@@ -176,6 +182,8 @@ public class App {
         });
         dialog.create().show();
     }
+
+
 
     /**
      * Generic method to display a popup dialog
@@ -199,6 +207,8 @@ public class App {
         });
         dialog.create().show();
     }
+
+
 
 
     /**
@@ -242,7 +252,7 @@ public class App {
 
 
     /**
-     * Toggle Vsibility between tow views
+     * Toggle Visibility between tow views
      * visible and gone
      * @param view1
      * @param view2
@@ -283,15 +293,19 @@ public class App {
      * @return
      */
     public static boolean isLoggedInVerifiedUser(Activity activity, boolean message){
-        if(FirebaseAuth.getInstance().getCurrentUser()!=null) {
-            if (!FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
-                if (message) {
-                    Toast.makeText(activity, "This account is not Verified\nCheck your Inbox", Toast.LENGTH_LONG).show();
+        final FirebaseAuth auth = FirebaseAuth.getInstance();
+        if(auth.getCurrentUser()!=null) {
+            if(auth.getCurrentUser().reload().isSuccessful()) {
+                if (!FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
+                    if (message) {
+                        Toast.makeText(activity, "This account is not Verified\nCheck your Inbox", Toast.LENGTH_LONG).show();
+                    }
+                    FirebaseAuth.getInstance().signOut();
+                    return false;
                 }
-                FirebaseAuth.getInstance().signOut();
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         return false;
     }
@@ -671,6 +685,7 @@ public class App {
    }
 
 
+
     /**
      * Decode a given encoded image (string) to bitmap
      * @param encodedImage
@@ -680,15 +695,6 @@ public class App {
        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
    }
-
-    public static Bitmap decodeImage(String encodedImage, int bitmapSampleSize) {
-        byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = bitmapSampleSize;
-        options.inPurgeable = true;
-        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length,options);
-    }
-
 
 
 
@@ -736,6 +742,8 @@ public class App {
    }
 
 
+
+
     /**
      * Clear sharedPreferences on request
      * @param activity
@@ -752,36 +760,39 @@ public class App {
      * to the SharedPreferences and execute a job
      * after finish
      * @param activity
-     * @param postCopy
+     * @param postSuccessfulCopy
      */
-    public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity, final Callable<Void> postCopy){
+    public static void copyUserInfoFromDatabaseToSharedPref(final Activity activity, final Callable<Void> postSuccessfulCopy){
 
-        FirebaseDatabase.getInstance().getReference().child("Users").orderByKey().
-                equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid())
+        FirebaseDatabase.getInstance().getReference().child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            User user = dataSnapshot.getChildren().iterator().next().getValue(User.class);
+                            User user = dataSnapshot.getValue(User.class);
                             String encodedImage = user.getImage();
                             if (!encodedImage.isEmpty()) {
                                 byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
                                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                                 user.setImage(encodeImage(activity, bitmap, 50));
-                                Map<String, String> profileInfo = getUserInfoInMap(user);
-                                addToSharedPreferences(activity, profileInfo);
+
                             }
-                        }
-                        try {
-                            postCopy.call();
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            Map<String, String> profileInfo = getUserInfoInMap(user);
+                            addToSharedPreferences(activity, profileInfo);
+                            try {
+                                postSuccessfulCopy.call();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {}
                 });
     }
+
+
 
 
     /**
@@ -799,6 +810,8 @@ public class App {
     }
 
 
+
+
     /**
      * Get the sharedPreferences of the current user
      * @param context
@@ -808,6 +821,8 @@ public class App {
         return context.getApplicationContext().getSharedPreferences(
                 FirebaseAuth.getInstance().getCurrentUser().getUid(), MODE_PRIVATE);
     }
+
+
 
 
     /**
@@ -826,6 +841,8 @@ public class App {
     }
 
 
+
+
     /**
      * Show Soft Keyboard
      * @param activity
@@ -835,6 +852,7 @@ public class App {
         ((InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE))
                 .showSoftInput(view, InputMethodManager.SHOW_FORCED);
     }
+
 
 
     /**
@@ -848,6 +866,7 @@ public class App {
     }
 
 
+
     /**
      * Get Mobile Screen Width
      * @return
@@ -855,6 +874,7 @@ public class App {
     public static int getScreenWidth(){
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
+
 
     /**
      * Get Mobile Screen Height
@@ -874,7 +894,6 @@ public class App {
      */
     public static boolean sharedPreferencesDataExists(Activity activity) {
         SharedPreferences pref = getCurrentUserSharedPreferences(activity);
-
         return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
                 !pref.getString("lName", "").isEmpty() &&
                 !pref.getString("gender", "").isEmpty()
@@ -913,85 +932,7 @@ public class App {
         }
     }
 
-    /**
-     * Remove child from database for
-     * the current user, specifying the
-     * parent collections/nodes
-     * and what to do after a successful deletion
-     * if child is null, that means its value is userID
-     * @param child
-     * @param afterDeletion
-     * @param collections
-     */
-    public static void removeChildNode(@Nullable String child, final Callable<Void> afterDeletion, final String ...collections){
 
-        final boolean[] flag = {true};
-
-        final StringBuilder key = (child==null)?
-                                    new StringBuilder(FirebaseAuth.getInstance().getUid())
-                                    : new StringBuilder(child);
-
-        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-
-        final int lastIndex = collections.length-1;
-        for (final String node : collections){
-            reference.child(node).child(key.toString()).removeValue()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(task.isSuccessful()){
-                                if(node.equals(collections[lastIndex]) && flag[0]){
-                                    try {afterDeletion.call();} catch (Exception e) {}
-                                }
-                            }
-                            else{flag[0] = false;}
-                        }
-                    });
-        }
-    }
-
-
-    /**
-     * Remove child from the entire database for
-     * the current user, specifying
-     * what to do after a successful deletion
-     * if child is null, that means its value is userID
-     * @param child
-     * @param afterDeletion
-     */
-    public static void removeChildNode(@Nullable String child, final Callable<Void> afterDeletion){
-        final boolean[] flag = {true};
-        final int[] counter = {0};
-
-        final StringBuilder key = (child==null)?
-                new StringBuilder(FirebaseAuth.getInstance().getUid())
-                : new StringBuilder(child);
-
-        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                final long count = dataSnapshot.getChildrenCount();
-                for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    snapshot.child(key.toString()).getRef().removeValue()
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        counter[0]++;
-                                        if(counter[0]==count && flag[0]){
-                                            try {afterDeletion.call();}
-                                            catch (Exception e) {}
-                                        }
-                                    }else{flag[0]=false;}
-                                }
-                            });
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-    }
 
 
     /**

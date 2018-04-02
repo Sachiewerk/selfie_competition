@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,8 +29,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.concurrent.Callable;
+import java.util.List;
 
 import ie.wit.witselfiecompetition.model.App;
 
@@ -40,7 +48,7 @@ import ie.wit.witselfiecompetition.model.App;
  * Change and Update The Password.
  * Close and Delete the User Account.
  *
- * Create by Yahya Almardeny on 15/03/2018
+ * Create by Yahya Almardeny on 01/04/2018
  */
 public class SettingsFragment extends Fragment {
 
@@ -52,7 +60,8 @@ public class SettingsFragment extends Fragment {
     LinearLayout header;
     Toolbar toolBar;
     GradientDrawable [] drawable;
-    Dialog pb;
+    Dialog fullScreenProgressBar;
+    String USER_ID;
 
     public SettingsFragment() {
     }
@@ -61,6 +70,8 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        USER_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        fullScreenProgressBar = App.onTopProgressBar(getActivity());
     }
 
 
@@ -81,6 +92,8 @@ public class SettingsFragment extends Fragment {
 
     }
 
+
+
     /**
      * Load Views into Fragment
      */
@@ -94,8 +107,9 @@ public class SettingsFragment extends Fragment {
         header = navigationView.getHeaderView(0).findViewById(R.id.header);
         toolBar = getActivity().findViewById(R.id.toolbar);
         drawable = new GradientDrawable[]{new GradientDrawable(), new GradientDrawable(),new GradientDrawable()};
-        pb = App.onTopProgressBar(getActivity());
     }
+
+
 
     /**
      * Fill Views With Required Info
@@ -176,6 +190,11 @@ public class SettingsFragment extends Fragment {
 
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    /******The Correct Way to close a user account and remove all related data
+     *  is by doing it on the server side not on the user side, but this just for now
+     * as there is no server administration***********/
+    //////////////////////////////////////////////////////////////////////////
 
     /**
      * Customized Alert Dialog to close
@@ -211,28 +230,18 @@ public class SettingsFragment extends Fragment {
             public void onClick(View v) {
                 String email = emailET.getText().toString();
                 String password = passwordET.getText().toString();
+
                 if (!email.isEmpty() && !password.isEmpty()) {
-                    pb.show();
+                    fullScreenProgressBar.show();
                     FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        final Callable<Void> afterDeleting = new Callable<Void>() {
-                                            @Override
-                                            public Void call() throws Exception {
-                                                FirebaseAuth.getInstance().getCurrentUser().delete();
-                                                App.clearSharedPreferences(getActivity());
-                                                pb.dismiss();
-                                                dialog.dismiss();
-                                                Toast.makeText(getActivity(), "Your account has been closed successfully !", Toast.LENGTH_LONG).show();
-                                                App.redirect(getActivity(), Login.class, false);
-                                                return null;
-                                            }
-                                        };
-                                        App.removeChildNode(null, afterDeleting, "Users");
+                                        removeUserFromUsers();
+
                                     } else {
-                                        pb.dismiss();
+                                        fullScreenProgressBar.dismiss();
                                         Toast.makeText(getActivity(), "Incorrect Email or/and Password!", Toast.LENGTH_LONG).show();
                                     }
                                 }
@@ -243,6 +252,8 @@ public class SettingsFragment extends Fragment {
             }
         });
     }
+
+
 
     /**
      * Change Password Customized Dialog
@@ -280,7 +291,7 @@ public class SettingsFragment extends Fragment {
                     final String newPass = newPassword.getText().toString();
                     String repeatPass = repeatPassword.getText().toString();
                     if(newPass.equals(repeatPass)) {
-                        pb.show();
+                        fullScreenProgressBar.show();
                         String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
                         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, currentPass)
                                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -295,11 +306,11 @@ public class SettingsFragment extends Fragment {
                                                             if (task.isSuccessful()) {
                                                                 Toast.makeText(getActivity(), "Your password has been updated successfully!", Toast.LENGTH_LONG).show();
                                                                 FirebaseAuth.getInstance().signOut();
-                                                                pb.dismiss();
+                                                                fullScreenProgressBar.dismiss();
                                                                 dialog.dismiss();
                                                                 App.redirect(getActivity(), Login.class, false);
                                                             } else {
-                                                                pb.dismiss();
+                                                                fullScreenProgressBar.dismiss();
                                                                 Toast.makeText(getActivity(), "Error while trying update password!", Toast.LENGTH_LONG).show();
                                                             }
                                                         }
@@ -307,7 +318,7 @@ public class SettingsFragment extends Fragment {
 
 
                                         } else {
-                                            pb.dismiss();
+                                            fullScreenProgressBar.dismiss();
                                             Toast.makeText(getActivity(), "Error while trying update password!", Toast.LENGTH_LONG).show();
                                         }
                                     }
@@ -319,6 +330,211 @@ public class SettingsFragment extends Fragment {
             }
         }});
     }
+
+
+    /**
+     * Remove user first from the Users collection
+     * On successful removal, remove it from Selfie Collection
+     */
+    private void removeUserFromUsers(){
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users").child(USER_ID).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            removeUserFromSelfies();
+                        }
+                    }
+                });
+    }
+
+
+    /**
+     * Remove user secondly from the Selfie collection
+     * On successful removal, remove it from Winner collection
+     */
+    private void removeUserFromSelfies(){
+        final DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                .child("Selfie");
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long count = dataSnapshot.getChildrenCount();
+                if(count>0) {
+                    for (DataSnapshot competitionId : dataSnapshot.getChildren()) {
+                        if (competitionId.hasChild(USER_ID)) {
+                            root.child(competitionId.getKey()).child(USER_ID).removeValue();
+                        }
+                        count--;
+                    }
+                    if(count==0){ removeUserFromWinners(); }
+                }
+                else { removeUserFromWinners(); }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+
+
+    /**
+     * Thirdly, Remove user from the Winner collection
+     * if he/she won once any of the competitions
+     */
+    private void removeUserFromWinners(){
+        final DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                .child("Winner");
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long count = dataSnapshot.getChildrenCount();
+                if(count>0) {
+                    for (DataSnapshot competitionId : dataSnapshot.getChildren()) {
+                        List<String> winners = (List<String>) competitionId.getValue();
+                        if (winners!=null && winners.contains(USER_ID)) {
+                            //start transaction
+                            removeUserFromWinnersTransaction(root.child(competitionId.getKey()));
+                        }
+                        count--;
+                    }
+                    if(count==0){removeUserFromCompetitions();}
+                }
+                else { removeUserFromCompetitions(); }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+
+
+    /**
+     * Database Transaction to remove user id from the
+     * winners' list in a given competition id
+     * @param dbr
+     */
+    private void removeUserFromWinnersTransaction(final DatabaseReference dbr) {
+
+        dbr.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if (currentData.getValue() != null) {
+                    List<String> temp = (List<String>) currentData.getValue();
+                    temp.remove(USER_ID);
+                    currentData.setValue(temp);
+                }
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
+                List<String> temp = (List<String>) currentData.getValue();
+                if (temp != null) {
+                    if (temp.contains(USER_ID)) {
+                        removeUserFromWinnersTransaction(dbr);
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Fourthly, Remove user from all competitions' SelfiesId children
+     * On successful, remove user from Authentication
+     */
+    private void removeUserFromCompetitions(){
+        final DatabaseReference root = FirebaseDatabase.getInstance().getReference()
+                .child("Competition");
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long count = dataSnapshot.getChildrenCount();
+                if(count>0){
+                    for(DataSnapshot competition : dataSnapshot.getChildren()){
+                        List<String> selfiesId = (List<String>) competition.child("selfiesId").getValue();
+                        if(selfiesId!=null && selfiesId.contains(USER_ID)){
+                            //start transaction
+                            removeUserFromCompetitionTransaction(root.child(competition.getKey()).child("selfiesId"));
+                        }
+                        count--;
+                    }
+                    if(count==0){removeUserFromAuthentication();}
+                }
+                else{removeUserFromAuthentication(); }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                removeUserFromCompetitions();
+            }
+        });
+    }
+
+
+
+
+    /**
+     * Database Transaction to remove the user from the selfies Ids list
+     * in every competition
+     * @param dbr
+     */
+    private void removeUserFromCompetitionTransaction(final DatabaseReference dbr) {
+
+        dbr.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if (currentData.getValue() != null) {
+                    List<String> temp = (List<String>) currentData.getValue();
+                    temp.remove(USER_ID);
+                    currentData.setValue(temp);
+                }
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
+                List<String> temp = (List<String>) currentData.getValue();
+                if (temp != null) {
+                    if (temp.contains(USER_ID)) {
+                        removeUserFromCompetitionTransaction(dbr);
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * Final step, remove user from the authentication
+     * After this step, user will have no existence at all
+     * except their likes will be kept
+     */
+    private void removeUserFromAuthentication(){
+        App.clearSharedPreferences(getActivity());
+        FirebaseAuth.getInstance().getCurrentUser().delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(getActivity(),
+                                    "Your account has been closed successfully !",
+                                    Toast.LENGTH_LONG).show();
+                            App.redirect(getActivity(), Login.class, false);
+
+                        }else{
+                            Toast.makeText(getActivity(),
+                                    "Error while trying to close account !",
+                                    Toast.LENGTH_LONG).show();
+                            fullScreenProgressBar.dismiss();
+                        }
+                    }
+                });
+    }
+
 
 }
 

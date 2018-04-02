@@ -153,7 +153,7 @@ public class ProfileSetup extends AppCompatActivity {
      */
     private void addNewUser(final User user) {
 
-        FirebaseDatabase.getInstance().getReference().getRoot()
+        FirebaseDatabase.getInstance().getReference()
                 .child("Users").child(FirebaseAuth.getInstance().getCurrentUser()
                 .getUid()).setValue(user)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

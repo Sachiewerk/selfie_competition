@@ -35,9 +35,9 @@ public class SplashScreen extends AppCompatActivity {
                 if(App.hasNetworkConnection(SplashScreen.this)) {
                     if(App.isLoggedInVerifiedUser(SplashScreen.this, false)) {
                         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-                        App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, new Callable<Void>() {
+                        Callable<Void> postSuccessfulCopy = new Callable<Void>() {
                             @Override
-                            public Void call() throws Exception {
+                            public Void call() {
                                 if(App.sharedPreferencesDataExists(SplashScreen.this)){
                                     App.redirect(SplashScreen.this, Main.class, false);
                                 }
@@ -47,7 +47,10 @@ public class SplashScreen extends AppCompatActivity {
                                 setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                                 return null;
                             }
-                        });
+                        };
+
+
+                        App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, postSuccessfulCopy);
                     }
                     else{
                         App.redirect(SplashScreen.this, Login.class, false);
