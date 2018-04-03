@@ -295,20 +295,20 @@ public class App {
     public static boolean isLoggedInVerifiedUser(Activity activity, boolean message){
         final FirebaseAuth auth = FirebaseAuth.getInstance();
         if(auth.getCurrentUser()!=null) {
-            if(auth.getCurrentUser().reload().isSuccessful()) {
-                if (!FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
-                    if (message) {
-                        Toast.makeText(activity, "This account is not Verified\nCheck your Inbox", Toast.LENGTH_LONG).show();
-                    }
-                    FirebaseAuth.getInstance().signOut();
-                    return false;
+            if (!FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
+                if (message) {
+                    Toast.makeText(activity, "This account is not Verified\nCheck your Inbox", Toast.LENGTH_LONG).show();
                 }
-                return true;
+                FirebaseAuth.getInstance().signOut();
+                return false;
             }
-            return false;
+            return true;
         }
         return false;
     }
+
+
+
 
 
     /**This method to check if the given name is valid

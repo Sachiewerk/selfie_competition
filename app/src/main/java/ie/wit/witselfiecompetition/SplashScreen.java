@@ -27,6 +27,8 @@ public class SplashScreen extends AppCompatActivity {
         // check the phone orientation and set appropriate layout accordingly
         App.setContentAccordingToOrientation(this);
 
+        /*****Server-Side Admin should manage tokens from users to prevent the same user from deleting the account
+         * from one device and keep logged in on another*****/
 
         // run asynchronously while displaying splash screen
         final Thread checkThread = new Thread(new Runnable() {

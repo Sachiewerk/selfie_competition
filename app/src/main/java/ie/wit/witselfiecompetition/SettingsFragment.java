@@ -62,6 +62,7 @@ public class SettingsFragment extends Fragment {
     GradientDrawable [] drawable;
     Dialog fullScreenProgressBar;
     String USER_ID;
+    FirebaseAuth auth;
 
     public SettingsFragment() {
     }
@@ -70,7 +71,8 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        USER_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        auth = FirebaseAuth.getInstance();
+        USER_ID = auth.getCurrentUser().getUid();
         fullScreenProgressBar = App.onTopProgressBar(getActivity());
     }
 
@@ -520,6 +522,7 @@ public class SettingsFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
+                            auth.signOut();
                             Toast.makeText(getActivity(),
                                     "Your account has been closed successfully !",
                                     Toast.LENGTH_LONG).show();
