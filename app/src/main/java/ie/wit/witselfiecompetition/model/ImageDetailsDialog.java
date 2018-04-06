@@ -2,20 +2,18 @@ package ie.wit.witselfiecompetition.model;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import ie.wit.witselfiecompetition.R;
 
 /**
+ * Dialog to display the details of a given
+ * Gallery selfie image
+ * Competition Name, Date Image Captured and Number of Likes Received
  * Created by yahya Almardeny on 30/03/18.
  */
 

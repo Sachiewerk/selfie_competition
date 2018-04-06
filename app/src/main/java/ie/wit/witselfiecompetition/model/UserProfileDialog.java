@@ -14,6 +14,7 @@ import android.widget.TextView;
 import ie.wit.witselfiecompetition.R;
 
 /**
+ * Custom Dialog to display the profile of a given user.
  * Created by yahya Almardeny on 30/03/18.
  */
 

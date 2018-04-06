@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -44,7 +43,6 @@ import java.util.concurrent.Callable;
 import ie.wit.witselfiecompetition.model.App;
 import ie.wit.witselfiecompetition.model.Course;
 import ie.wit.witselfiecompetition.model.DoWithDatabase;
-import ie.wit.witselfiecompetition.model.DoWithDatabaseException;
 import ie.wit.witselfiecompetition.model.EditTextViewListener;
 
 import static android.app.Activity.RESULT_CANCELED;

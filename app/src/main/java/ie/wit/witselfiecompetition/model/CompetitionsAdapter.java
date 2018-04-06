@@ -1,8 +1,6 @@
 package ie.wit.witselfiecompetition.model;
 
-import android.app.FragmentManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
@@ -12,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.Serializable;
-import java.text.ParseException;
 import java.util.List;
 
 import ie.wit.witselfiecompetition.R;

@@ -40,7 +40,12 @@ import ie.wit.witselfiecompetition.model.CompetitionsAdapter;
 
 
 /**
- * TO-DO in CA2
+ * Competition Fragment class. It displays the competitions in
+ * a clickable RecyclerView. The open one will display and Open icon
+ * while the close one will show "Closed On 00/00/00 00:00"
+ * After clicking on the required competition, it goes to the SelfieNavigator
+ * Fragment to display the selfies submitted, transferring the competition details
+ * to the next Class.
  */
 public class CompetitionFragment extends Fragment {
 
