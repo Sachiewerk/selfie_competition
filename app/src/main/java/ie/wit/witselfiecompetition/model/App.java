@@ -895,9 +895,7 @@ public class App {
     public static boolean sharedPreferencesDataExists(Activity activity) {
         SharedPreferences pref = getCurrentUserSharedPreferences(activity);
         return pref.getAll().size()!=0 && !pref.getString("fName", "").isEmpty() &&
-                !pref.getString("lName", "").isEmpty() &&
-                !pref.getString("gender", "").isEmpty()
-                && !pref.getString("course", "").isEmpty();
+                !pref.getString("lName", "").isEmpty();
     }
 
 
