@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "577558534243-3o77v612a78535jp259funeq0jff97o8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ie.wit.witselfiecompetition",
+            "certificate_hash": "5ce3717ca17ed3da0dd7fef0591135ce08f0dc16"
+          }
+        },
+        {
           "client_id": "577558534243-98ifc4die8lqic569haoj2bg1m09imil.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577558534243-98ifc4die8lqic569haoj2bg1m09imil.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
