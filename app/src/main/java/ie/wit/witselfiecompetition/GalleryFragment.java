@@ -2,10 +2,12 @@ package ie.wit.witselfiecompetition;
 
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
@@ -81,6 +83,7 @@ import ie.wit.witselfiecompetition.model.UserProfileDialog;
 public class GalleryFragment extends Fragment {
 
 
+    private static final int PERMISSION_CODE = 200;
     private long AVAILABLE_MEMORY ;
     private View gallery_ActionBarView;
     private ImageView correctSign, deleteIcon;
@@ -450,6 +453,9 @@ public class GalleryFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.saveItem:
+                if (App.shouldAskPermissions()) {
+                    askPermissions();
+                }
                 saveImages();
                 return true;
 
@@ -931,7 +937,6 @@ public class GalleryFragment extends Fragment {
         if (file.exists()) { file.delete(); }
 
         try {
-            file.createNewFile();
             final FileOutputStream fos = new FileOutputStream(file);
             final BufferedOutputStream bos = new BufferedOutputStream(fos, 8192);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
@@ -959,6 +964,31 @@ public class GalleryFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(true);
         cleanMemory();
     }
+
+    @TargetApi(23)
+    protected void askPermissions() {
+        String[] permissions = {
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+        };
+        requestPermissions(permissions, PERMISSION_CODE);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                saveImages();
+            } else {
+                Toast.makeText(getActivity(), "No permission to save image!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
 
 
 }
