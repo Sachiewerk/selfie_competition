@@ -25,12 +25,15 @@ public class ImageAdapter extends BaseAdapter {
 
     private List<Bitmap> bitmaps;
     private LayoutInflater inflater;
+    private boolean gallery;
 
 
-    public ImageAdapter(Context context) {
+    public ImageAdapter(Context context, boolean gallery) {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         bitmaps = new ArrayList<>();
+        this.gallery = gallery;
     }
+
 
 
     public int getCount() {
@@ -54,18 +57,33 @@ public class ImageAdapter extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
        View view = convertView;
-       ViewHolder holder;
-        if(convertView == null){
-            view = inflater.inflate(R.layout.one_selfie, parent, false);
-            holder = new ViewHolder(view);
-            view.setTag(holder);
-        }else{
-            holder = (ViewHolder) view.getTag();
-        }
-        holder.oneSelfie.setImageBitmap(bitmaps.get(position));
+       if(gallery){
+           GalleryViewHolder holder;
+           if(convertView == null){
+               view = inflater.inflate(R.layout.one_gallery_image, parent, false);
+               holder = new GalleryViewHolder(view);
+               view.setTag(holder);
+           }else{
+               holder = (GalleryViewHolder) view.getTag();
+           }
+           holder.galleryImage.setImageBitmap(bitmaps.get(position));
+
+       }else{
+           SelfieViewHolder holder;
+           if(convertView == null){
+               view = inflater.inflate(R.layout.one_selfie, parent, false);
+               holder = new SelfieViewHolder(view);
+               view.setTag(holder);
+           }else{
+               holder = (SelfieViewHolder) view.getTag();
+           }
+           holder.oneSelfie.setImageBitmap(bitmaps.get(position));
+       }
+
         GridView grid = (GridView)parent;
         int size = grid.getColumnWidth();
         view.setLayoutParams(new GridView.LayoutParams(size, size));
+
         return view;
     }
 
@@ -101,11 +119,21 @@ public class ImageAdapter extends BaseAdapter {
     }
 
 
-    private static class ViewHolder{
+    private static class SelfieViewHolder{
         ImageView oneSelfie;
 
-        ViewHolder(View view){
+        SelfieViewHolder(View view){
             oneSelfie =  view.findViewById(R.id.oneSelfie);
+        }
+    }
+
+    private static class GalleryViewHolder{
+        ImageView galleryImage, highlightedImage;
+
+        GalleryViewHolder(View view){
+
+            galleryImage =  view.findViewById(R.id.galleryImage);
+            highlightedImage =  view.findViewById(R.id.highlightedImage);
         }
     }
 

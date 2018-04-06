@@ -14,7 +14,6 @@
             android:id="@+id/selfie"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_350sdp"
-            android:src="@drawable/male"
             android:clickable="true"
             android:focusable="true"
             app:layout_constraintStart_toEndOf="parent"

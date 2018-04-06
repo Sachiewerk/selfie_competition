@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,6 +29,7 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,6 +57,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ie.wit.witselfiecompetition.model.App;
 import ie.wit.witselfiecompetition.model.Competition;
 import ie.wit.witselfiecompetition.model.CompetitionDeadlineWatcher;
+import ie.wit.witselfiecompetition.model.Gallery;
 import ie.wit.witselfiecompetition.model.ImageAdapter;
 import ie.wit.witselfiecompetition.model.Selfie;
 import ie.wit.witselfiecompetition.model.SelfiePagerAdapter;
@@ -106,7 +110,7 @@ public class SelfieNavigator extends Fragment {
     private List<String> selfiesId, winners;
     private Competition competition;
     private String USER_ID;
-    private DatabaseReference SELFIES_REFERENCE, COMPETITION_SELFIES_REFERENCE;
+    private DatabaseReference SELFIES_REFERENCE, COMPETITION_SELFIES_REFERENCE, GALLERY_REFERENCE;
     private Dialog fullScreenProgressBar;
     private final int PERMISSION_CODE = 1, PIC_CAPTURE_CODE = 2, LOAD_IMAGE_CODE = 3;
     private Uri uri;
@@ -155,6 +159,9 @@ public class SelfieNavigator extends Fragment {
         // get the current user id
         USER_ID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        GALLERY_REFERENCE = FirebaseDatabase.getInstance().getReference()
+                .child("Gallery").child(USER_ID).child(competition.getcId());
+
         // create layout inflater
         inflater = getActivity().getLayoutInflater();
 
@@ -175,7 +182,7 @@ public class SelfieNavigator extends Fragment {
         selfiesId = new ArrayList<>();
 
         // initialize the GridView adapter
-        imageAdapter = new ImageAdapter(getContext());
+        imageAdapter = new ImageAdapter(getContext(), false);
 
         // initialize the ViewPager adapter
         selfiePagerAdapter = new SelfiePagerAdapter();
@@ -213,6 +220,7 @@ public class SelfieNavigator extends Fragment {
         addActionBarListener();
         initialize();
     }
+
 
 
     /**
@@ -255,7 +263,6 @@ public class SelfieNavigator extends Fragment {
 
 
     }
-
 
 
     /**
@@ -371,7 +378,7 @@ public class SelfieNavigator extends Fragment {
      * Initialize Selfie Navigator Lists
      * copy the selfies ids and put the current user id
      * at the beginning if he already submitted one
-     * fill the view pager and grid view with empty views
+     * fill the view pager and grid view selfies views
      * that will be filled later from database
      */
     private void initialize(){
@@ -382,7 +389,7 @@ public class SelfieNavigator extends Fragment {
                 selfiesId.add(temp.get(index));
                 temp.remove(index);
                 userSubmittedSelfie.set(true);
-                toggleVisibility(submit_selfie);
+                submit_selfie.setVisibility(View.INVISIBLE);
             }
             selfiesId.addAll(temp);
         }
@@ -430,24 +437,30 @@ public class SelfieNavigator extends Fragment {
      * Take picture using the camera of mobile phone
      */
     private void takePicture() {
-        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-        String newDirPath = picturesDir + "/witSelfieCompetition/";
-        File newDir = new File(newDirPath);
-        if (!newDir.exists()) {
-            newDir.mkdirs();
+        File direct = new File(Environment.getExternalStorageDirectory() + "/witSelfieCompetition");
+
+        if (!direct.exists()) {
+            File wallpaperDirectory = new File("/sdcard/witSelfieCompetition/");
+            wallpaperDirectory.mkdirs();
         }
-        String capturedImageName = String.format("selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
-        File picFile = new File(newDir + capturedImageName);
+
+        String capturedImageName = String.format("selfie-%s.jpg",
+                new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+
+        File file = new File(new File("/sdcard/witSelfieCompetition/"), capturedImageName);
+        if (file.exists()) {
+            file.delete();
+        }
 
         try {
-            picFile.createNewFile();
-            uri = Uri.fromFile(picFile);
+            file.createNewFile();
+            uri = Uri.fromFile(file);
             Intent camera = new Intent();
             camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
             camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(camera, PIC_CAPTURE_CODE);
         } catch (IOException e) {
-            picFile.delete();
+            file.delete();
             App.showMessage(getActivity(), "Error!", "Could not save image", false);
         }
 
@@ -507,7 +520,7 @@ public class SelfieNavigator extends Fragment {
                     // (500 * 1024 * 8) / 16(bit depth) = 256000 pixel (505*505)px or (5.2*5.2)inch
                     final String encodedSelfie = App.encodeImage(getActivity(), uri, 500);
                     // add it to database
-                    final Selfie selfie = new Selfie(USER_ID, encodedSelfie, new ArrayList<String>());
+                    final Selfie selfie = new Selfie(USER_ID, encodedSelfie, new ArrayList<String>(), App.nowDate());
                     SELFIES_REFERENCE.child(USER_ID).setValue(selfie).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -524,6 +537,7 @@ public class SelfieNavigator extends Fragment {
                                 userSubmittedSelfie.set(true);
                                 // add to competition selfiesId
                                 addCurrentUserSelfieToCompetition();
+                                addCurrentUserSelfieToGallery(selfie);
                                 viewPager.setCurrentItem(0);
                                 beFirstLabel.setVisibility(View.GONE);
                                 fullScreenProgressBar.dismiss();
@@ -546,7 +560,7 @@ public class SelfieNavigator extends Fragment {
                 public void run() {
                     final String encodedSelfie = App.encodeImage(getActivity(), imageUri, 500);
                     // add it to database
-                    final Selfie selfie = new Selfie(USER_ID, encodedSelfie, new ArrayList<String>());
+                    final Selfie selfie = new Selfie(USER_ID, encodedSelfie, new ArrayList<String>(), App.nowDate());
                     SELFIES_REFERENCE.child(USER_ID).setValue(selfie).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -562,6 +576,7 @@ public class SelfieNavigator extends Fragment {
                                 userSubmittedSelfie.set(true);
                                 // add to competition selfiesId
                                 addCurrentUserSelfieToCompetition();
+                                addCurrentUserSelfieToGallery(selfie);
                                 viewPager.setCurrentItem(0);
                                 beFirstLabel.setVisibility(View.GONE);
                                 fullScreenProgressBar.dismiss();
@@ -579,8 +594,16 @@ public class SelfieNavigator extends Fragment {
      * Recursively fetch the winners selfies from database
      */
     private void fetchWinnersSelfies(){
-      if(selfieIndex.get() < winners.size()){
-          ValueEventListener vel = new ValueEventListener() {
+        if (databaseListeners != null) {
+            for (Map.Entry entry : databaseListeners.entrySet()) {
+                DatabaseReference dbr = (DatabaseReference) entry.getKey();
+                ValueEventListener vel = (ValueEventListener) entry.getValue();
+                dbr.removeEventListener(vel);
+            }
+            databaseListeners.clear();
+        }
+        if(selfieIndex.get() < winners.size()){
+           ValueEventListener vel = new ValueEventListener() {
               @Override
               public void onDataChange(DataSnapshot dataSnapshot) {
                   if (!halt.get()) {
@@ -705,11 +728,17 @@ public class SelfieNavigator extends Fragment {
             likesTextView.setTextColor(Color.WHITE);
         }
 
+        final DatabaseReference LIKES_GALLERY_REFERENCE = FirebaseDatabase.getInstance().getReference()
+                                                            .child("Gallery").child(selfie.getuId())
+                                                            .child(competition.getcId())
+                                                            .child("likes");
+
         // Add Like Listener
         likeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 likeIcon.setEnabled(false);
+
                 SELFIES_REFERENCE.child(selfie.getuId()).child("likes")
                         .runTransaction(new Transaction.Handler() {
                             @Override
@@ -736,6 +765,7 @@ public class SelfieNavigator extends Fragment {
                                     likesTextView.setTextColor(Color.RED);
                                     likeIcon.setVisibility(View.GONE);
                                     likeIconClicked.setVisibility(View.VISIBLE);
+                                    LIKES_GALLERY_REFERENCE.setValue(String.valueOf(temp.size()));
                                 }
                                 likeIcon.setEnabled(true);
                             }
@@ -769,11 +799,13 @@ public class SelfieNavigator extends Fragment {
                                     likesTextView.setTextColor(Color.WHITE);
                                     likeIcon.setVisibility(View.VISIBLE);
                                     likeIconClicked.setVisibility(View.GONE);
+                                    LIKES_GALLERY_REFERENCE.setValue("0");
                                 } else if (!temp.contains(USER_ID)) {
                                     likesTextView.setText(String.valueOf(temp.size()));
                                     likesTextView.setTextColor(Color.WHITE);
                                     likeIcon.setVisibility(View.VISIBLE);
                                     likeIconClicked.setVisibility(View.GONE);
+                                    LIKES_GALLERY_REFERENCE.setValue(String.valueOf(temp.size()));
                                 }
                                 likeIconClicked.setEnabled(true);
                             }
@@ -825,33 +857,37 @@ public class SelfieNavigator extends Fragment {
 
 
     /**
-     * Database Transaction to Add the current's user
-     * Selfie Id to the Competition Collection
+     * Add the current's user
+     * Selfie Image to the Gallery Collection
      */
-    private void addCurrentUserSelfieToCompetition() {
-        COMPETITION_SELFIES_REFERENCE.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData currentData) {
-                List<String> temp;
-                if (currentData.getValue() == null) {
-                    temp = new ArrayList<>();
-                    temp.add(USER_ID);
-                    currentData.setValue(temp);
-                } else {
-                    temp = (List<String>) currentData.getValue();
-                    temp.add(USER_ID);
-                    currentData.setValue(temp);
-                }
-                return Transaction.success(currentData);
-            }
+    private void addCurrentUserSelfieToGallery(final Selfie selfie) {
+        final Gallery gallery = new Gallery();
+        gallery.setDate(App.nowDate());
+        gallery.setImage(selfie.getImage());
+        gallery.setLikes(selfie.getLikes()==null? "0" : String.valueOf(selfie.getLikes().size()));
+        gallery.setCompName(competition.getName());
 
+        GALLERY_REFERENCE.setValue(gallery).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
-                List<String> temp = (List<String>) currentData.getValue();
-                if (userSubmittedSelfie.get()) {
-                    if (temp == null || !temp.contains(USER_ID)) {
-                        addCurrentUserSelfieToCompetition();
-                    }
+            public void onComplete(@NonNull Task<Void> task) {
+                if(!task.isSuccessful() && userSubmittedSelfie.get()){
+                    addCurrentUserSelfieToGallery(selfie);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Remove the current's user
+     * Selfie Image to the Gallery Collection
+     */
+    private void removeCurrentUserSelfieFromGallery() {
+        GALLERY_REFERENCE.setValue(null).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(!task.isSuccessful() && !userSubmittedSelfie.get()){
+                    removeCurrentUserSelfieFromGallery();
                 }
             }
         });
@@ -887,6 +923,40 @@ public class SelfieNavigator extends Fragment {
                     // that means my selfie is the last one left
                     beFirstLabel.setVisibility(View.VISIBLE);
                     back.callOnClick();
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Database Transaction to Add the current's user
+     * Selfie Id to the Competition Collection
+     */
+    private void addCurrentUserSelfieToCompetition() {
+        COMPETITION_SELFIES_REFERENCE.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                List<String> temp;
+                if (currentData.getValue() == null) {
+                    temp = new ArrayList<>();
+                    temp.add(USER_ID);
+                    currentData.setValue(temp);
+                } else {
+                    temp = (List<String>) currentData.getValue();
+                    temp.add(USER_ID);
+                    currentData.setValue(temp);
+                }
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
+                List<String> temp = (List<String>) currentData.getValue();
+                if (userSubmittedSelfie.get()) {
+                    if (temp == null || !temp.contains(USER_ID)) {
+                        addCurrentUserSelfieToCompetition();
+                    }
                 }
             }
         });
@@ -994,6 +1064,7 @@ public class SelfieNavigator extends Fragment {
                                             selfieIndex.decrementAndGet();
                                             userSubmittedSelfie.set(false);
                                             removeCurrentUserSelfieFromCompetition();
+                                            removeCurrentUserSelfieFromGallery();
 
                                             //if(bitmap!=null && !bitmap.isRecycled()) bitmap.recycle();
                                             submit_selfie.setVisibility(View.VISIBLE);
@@ -1097,12 +1168,12 @@ public class SelfieNavigator extends Fragment {
         // if there is no enough memory
         if (selfieMemoryShare == 0) {
             halt.set(true);
+            cleanMemory(); // clean memory before go
             // inform user and back to main activity
             App.showMessage(getActivity(), "Error: Out of Memory",
                     "No Enough Memory on your device to load the selfies!", new Callable<Void>() {
                         @Override
                         public Void call() {
-                            cleanMemory(); // clean memory before go
                             App.redirect(getActivity(), Main.class, false);
                             return null;
                         }
@@ -1208,6 +1279,14 @@ public class SelfieNavigator extends Fragment {
      * from database and set them in the views
      */
     private void fetchSelfie() {
+        if (databaseListeners != null) {
+            for (Map.Entry entry : databaseListeners.entrySet()) {
+                DatabaseReference dbr = (DatabaseReference) entry.getKey();
+                ValueEventListener vel = (ValueEventListener) entry.getValue();
+                dbr.removeEventListener(vel);
+            }
+            databaseListeners.clear();
+        }
         if (selfieIndex.get() < selfiesId.size()) {
             ValueEventListener vel = new ValueEventListener() {
                 @Override

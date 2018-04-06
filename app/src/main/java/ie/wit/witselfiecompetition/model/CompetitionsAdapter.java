@@ -68,6 +68,7 @@ public class CompetitionsAdapter extends RecyclerView.Adapter<CompetitionsAdapte
         }
         else{
             closeDate = "Closed on: " + closeDate;
+            holder.compOpenImage.setVisibility(View.INVISIBLE);
         }
         holder.compCloseDate.setText(closeDate);
 

@@ -1,0 +1,31 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/border_shadow">
+
+
+    <item
+        android:id="@+id/selectItem"
+        android:title="@string/select"
+        android:icon="@drawable/ic_select"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/saveItem"
+        android:title="@string/save_image"
+        android:icon="@drawable/ic_save_image"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/detailsItem"
+        android:title="@string/details_pic"
+        android:icon="@drawable/ic_details"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/deleteItem"
+        android:title="@string/delete_pic"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="never"/>
+
+
+</menu>

@@ -66,7 +66,6 @@ public class Main extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -365,28 +364,36 @@ public class Main extends AppCompatActivity
     /**
      * Take picture using the camera of mobile phone
      */
-    private void takePicture(){
-        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-        String newDirPath = picturesDir + "/witSelfieCompetition/";
-        File newDir = new File(newDirPath);
-        if(!newDir.exists()){newDir.mkdirs();}
-        String capturedImageName = String.format("selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
-        File picFile = new File(newDir+capturedImageName);
+    private void takePicture() {
+        File direct = new File(Environment.getExternalStorageDirectory() + "/witSelfieCompetition");
+
+        if (!direct.exists()) {
+            File wallpaperDirectory = new File("/sdcard/witSelfieCompetition/");
+            wallpaperDirectory.mkdirs();
+        }
+
+        String capturedImageName = String.format("selfie-%s.jpg",
+                new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+
+        File file = new File(new File("/sdcard/witSelfieCompetition/"), capturedImageName);
+        if (file.exists()) {
+            file.delete();
+        }
 
         try {
-            picFile.createNewFile();
-            uri = Uri.fromFile(picFile);
+            file.createNewFile();
+            uri = Uri.fromFile(file);
             Intent camera = new Intent();
             camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
             camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(camera, PIC_CAPTURE_CODE);
+        } catch (IOException e) {
+            file.delete();
+            App.showMessage(this, "Error!", "Could not save image", false);
         }
-        catch (IOException e) {
-            picFile.delete();
-            App.showMessage(this,"Error!", "Could not save image", false);
-        }
-
     }
+
+
 
     private void uploadPicture() {
         Intent gallery = new Intent();

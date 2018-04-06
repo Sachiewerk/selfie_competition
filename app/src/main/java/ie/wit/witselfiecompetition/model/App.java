@@ -309,8 +309,6 @@ public class App {
 
 
 
-
-
     /**This method to check if the given name is valid
      * and probably a real one
      * @param activity
@@ -669,6 +667,7 @@ public class App {
            temp.createNewFile();
            OutputStream os = new BufferedOutputStream(new FileOutputStream(temp));
            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+           os.flush();
            os.close();
            double lenInBits = temp.length() * Byte.SIZE;
 
@@ -965,6 +964,19 @@ public class App {
                 || (now[0] <= close[0] && ((now[3] < close[3])
                 || (now[3] <= close[3] && ((now[4] < close[4])
                 || ((now[4] > close[4]) ? false : false)))))))));
+    }
+
+
+
+    /**
+     * Get the current date
+     * as a String
+     * @return
+     */
+    public static String nowDate(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.UK);
+        Date date = new Date();
+        return simpleDateFormat.format(date);
     }
 
 

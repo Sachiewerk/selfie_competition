@@ -18,11 +18,13 @@ public class Selfie {
     private String uId;
     private String image;
     private List<String> likes;
+    private String date;
 
-    public Selfie(String uId, String image, List<String> likes) {
+    public Selfie(String uId, String image, List<String> likes, String date) {
         this.uId = uId;
         this.image = image;
         this.likes = likes;
+        this.date = date;
     }
 
     public Selfie(){}
@@ -54,12 +56,23 @@ public class Selfie {
         this.uId = uId;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         return "Selfie{" +
                 "uId='" + uId + '\'' +
                 ", image='" + image + '\'' +
                 ", likes=" + likes +
+                ", date='" + date + '\'' +
                 '}';
     }
+
+
 }

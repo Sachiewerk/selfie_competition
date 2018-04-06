@@ -596,28 +596,36 @@ public class ProfileFragment extends Fragment {
     }
 
 
+
     /**
      * Take picture using the camera of mobile phone
      */
-    private void takePicture(){
-        String picturesDir = android.os.Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-        String newDirPath = picturesDir + "/witSelfieCompetition/";
-        File newDir = new File(newDirPath);
-        if(!newDir.exists()){newDir.mkdirs();}
-        String picName = String.format("/selfie-%s.jpg", new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
-        File picFile = new File(newDir+picName);
+    private void takePicture() {
+        File direct = new File(Environment.getExternalStorageDirectory() + "/witSelfieCompetition");
+
+        if (!direct.exists()) {
+            File wallpaperDirectory = new File("/sdcard/witSelfieCompetition/");
+            wallpaperDirectory.mkdirs();
+        }
+
+        String capturedImageName = String.format("selfie-%s.jpg",
+                new SimpleDateFormat("ddMMyy-hhmmss.SSS", Locale.UK).format(new Date()));
+
+        File file = new File(new File("/sdcard/witSelfieCompetition/"), capturedImageName);
+        if (file.exists()) {
+            file.delete();
+        }
 
         try {
-            picFile.createNewFile();
-            uri = Uri.fromFile(picFile);
+            file.createNewFile();
+            uri = Uri.fromFile(file);
             Intent camera = new Intent();
             camera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
             camera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(camera, PIC_CAPTURE_CODE);
-        }
-        catch (IOException e) {
-            picFile.delete();
-            App.showMessage(getActivity(),"Error!", "Could not save image", false);
+        } catch (IOException e) {
+            file.delete();
+            App.showMessage(getActivity(), "Error!", "Could not save image", false);
         }
 
     }

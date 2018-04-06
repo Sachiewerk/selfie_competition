@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_20sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent">
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/_10sdp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_14ssp"
+                        android:text="@string/competition"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/competitionName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="false"
+                        android:textSize="@dimen/_14ssp"
+                        android:textAlignment="center"
+                        android:layout_weight="1"/>
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/_10sdp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_14ssp"
+                        android:text="@string/date"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp"/>
+
+                    <TextView
+                        android:id="@+id/selfieDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_14ssp"
+                        android:singleLine="false"
+                        android:textAlignment="center"
+                        android:layout_weight="1"/>
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/_10sdp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_14ssp"
+                        android:text="@string/likes"
+                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp"/>
+
+                     <TextView
+                         android:id="@+id/selfieLikes"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:textSize="@dimen/_14ssp"
+                         android:textAlignment="center"
+                         android:layout_weight="1"/>
+                    </TableRow>
+            </TableLayout>
+
+            <View
+                android:id="@+id/Hbar"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/_25sdp"
+                android:background="#7c7c7c"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tableLayout" />
+
+            <Button
+                android:id="@+id/closeButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:background="@color/darkGrey"
+                android:text="@string/close"
+                android:textAllCaps="false"
+                android:textColor="@color/splashTitle"
+                android:textSize="@dimen/_14ssp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/Hbar"/>
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</RelativeLayout>

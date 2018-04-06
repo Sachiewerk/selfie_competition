@@ -65,32 +65,35 @@ public class UserProfileDialog extends Dialog{
             aboutMeTextView.setText(user.getAboutMe());
         }
 
+        imageDialog = new Dialog(getContext(), R.style.imageFrameDialog);
+        imageDialog.setContentView(R.layout.profile_pic);
+        popupProfilePic = imageDialog.findViewById(R.id.popupProfilePic);
+
         String image = user.getImage();
         if (image.isEmpty()) {
             switch (user.getGender()) {
                 case "Male":
                     profilePic.setImageResource(R.drawable.male);
+                    popupProfilePic.setImageResource(R.drawable.male);
                     break;
                 case "Female":
                     profilePic.setImageResource(R.drawable.female);
+                    popupProfilePic.setImageResource(R.drawable.female);
                     break;
             }
+
         } else {
             bitmap = App.decodeImage(image);
             profilePic.setImageBitmap(bitmap);
+            popupProfilePic.setImageBitmap(bitmap);
         }
 
         // listen to profile pic clicks
         profilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imageDialog = new Dialog(getContext(), R.style.imageFrameDialog);
-                imageDialog.setContentView(R.layout.profile_pic);
-                popupProfilePic = imageDialog.findViewById(R.id.popupProfilePic);
-                popupProfilePic.setImageBitmap(bitmap);
-                imageDialog.show();
-            }
-
+                @Override
+                public void onClick(View v) {
+                    imageDialog.show();
+                }
         });
 
         closeProfileIcon.setOnClickListener(new View.OnClickListener() {

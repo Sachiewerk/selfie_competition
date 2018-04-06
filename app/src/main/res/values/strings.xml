@@ -53,7 +53,16 @@
     <string name="delete_pic">Delete</string>
     <string name="first_submit">Be the first who submit a selfie in this competition</string>
     <string name="image_deleted">Oops! This image has been deleted by the user</string>
-
+    <string name="details_pic">Details</string>
+    <string name="save_image">Save</string>
+    <string name="select">Select Image</string>
+    <string name="select_all">Select all</string>
+    <string name="deselect_all">Deselect all</string>
+    <string name="close">Close</string>
+    <string name="details">Details</string>
+    <string name="competition">Competition:</string>
+    <string name="date">Date:</string>
+    <string name="likes">Likes:</string>
 
 
 </resources>

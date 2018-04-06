@@ -21,6 +21,16 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+
+
+    <style name="Details_Dialog" parent="android:Theme.Holo.Dialog">
+        <item name="android:textColor">@color/splashTitle</item>
+        <item name="android:textColorPrimary">@color/splashTitle</item>
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+    </style>
+
+
     <style name="progressBarDialog" parent="Theme.AppCompat.Dialog">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
