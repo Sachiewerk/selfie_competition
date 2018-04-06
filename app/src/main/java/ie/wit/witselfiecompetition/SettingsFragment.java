@@ -399,9 +399,9 @@ public class SettingsFragment extends Fragment {
                         }
                         count--;
                     }
-                    if(count==0){removeUserFromCompetitions();}
+                    if(count==0){removeCurrentUserSelfieFromGallery();}
                 }
-                else { removeUserFromCompetitions(); }
+                else { removeCurrentUserSelfieFromGallery(); }
             }
 
             @Override
@@ -443,7 +443,25 @@ public class SettingsFragment extends Fragment {
 
 
     /**
-     * Fourthly, Remove user from all competitions' SelfiesId children
+     * Fourthly, Remove the current's user
+     * Selfie Images from the Gallery Collection
+     * On Successful, remove user from Competition
+     */
+    private void removeCurrentUserSelfieFromGallery() {
+        DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("Gallery").child(USER_ID);
+        root.setValue(null).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    removeUserFromCompetitions();
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Fifthly, Remove user from all competitions' SelfiesId children
      * On successful, remove user from Authentication
      */
     private void removeUserFromCompetitions(){
@@ -472,7 +490,6 @@ public class SettingsFragment extends Fragment {
             }
         });
     }
-
 
 
 
