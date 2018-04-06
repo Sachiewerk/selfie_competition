@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,8 +63,7 @@ public class SettingsFragment extends Fragment {
     String USER_ID;
     FirebaseAuth auth;
 
-    public SettingsFragment() {
-    }
+    public SettingsFragment() { }
 
 
     @Override
@@ -193,9 +191,9 @@ public class SettingsFragment extends Fragment {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    /******The Correct Way to close a user account and remove all related data
-     *  is by doing it on the server side not on the user side, but this just for now
-     * as there is no server administration***********/
+    /***** The Correct Way to close a user account and remove all related data
+     *  is by doing it on the server-side not on the user-side, but this just for now
+     * as there is no serve-side administration ******/
     //////////////////////////////////////////////////////////////////////////
 
     /**

@@ -52,7 +52,7 @@ public class ProfileSetup extends AppCompatActivity {
         App.setContentAccordingToOrientation(ProfileSetup.this);
 
         firstNameEditText = findViewById(R.id.firstNameEditText);
-        lastNameEditText = findViewById(R.id.lastNameEditText);;
+        lastNameEditText = findViewById(R.id.lastNameEditText);
         genderRadioGroup = findViewById(R.id.genderRadioGroup);
         maleRadioButton = findViewById(R.id.maleRadioButton);
         femaleRadioButton = findViewById(R.id.femaleRadioButton);
@@ -136,9 +136,7 @@ public class ProfileSetup extends AppCompatActivity {
         gender = gender();
         if(gender!=null){
             if(App.isValidName(ProfileSetup.this, firstNameEditText, "first name")){
-                if(App.isValidName(ProfileSetup.this, lastNameEditText, "last name")){
-                    return true;
-                }
+                return App.isValidName(ProfileSetup.this, lastNameEditText, "last name");
             }
         }
         return false;

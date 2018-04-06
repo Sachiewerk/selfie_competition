@@ -175,7 +175,7 @@ public class ProfileFragment extends Fragment {
 
         final Callable<Void> onFailure = new Callable<Void>() {
             @Override
-            public Void call() throws Exception {
+            public Void call() {
                 Toast.makeText(getActivity(), "Error in adding data to Database", Toast.LENGTH_SHORT).show();
                 progressbar.cancel();
                 return null;
@@ -207,7 +207,7 @@ public class ProfileFragment extends Fragment {
                     data.put("lName", lName);
                     final Callable<Void> onSucceed = new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
+                        public Void call() {
                             TextView fullNameTV = getActivity().findViewById(R.id.fullNameTextView);
                             fullNameTV.setText(fullN);
                             App.addToSharedPreferences(getActivity(), data);
@@ -260,7 +260,7 @@ public class ProfileFragment extends Fragment {
 
                 final Callable<Void> onSucceed = new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
+                    public Void call() {
                         courseTextView.setText(newCourse);
                         App.addToSharedPreferences(getActivity(), "course", newCourse);
                         App.toggleExistence(courseTextView, coursesMenu);
@@ -313,7 +313,7 @@ public class ProfileFragment extends Fragment {
 
                 final Callable<Void> onSucceed = new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
+                    public Void call() {
                         genderTextView.setText(gender);
                         App.addToSharedPreferences(getActivity(), "gender", gender);
                         App.toggleExistence(genderTextView, genderRadioGroup);
@@ -356,7 +356,7 @@ public class ProfileFragment extends Fragment {
                 final String aboutMe = aboutMeEditText.getText().toString();
                 final Callable<Void> onSucceed = new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
+                    public Void call() {
                         toggleFocusable(aboutMeEditText);
                         App.toggleExistence(aboutMeEditIcon, changesControlAboutMe);
                         App.addToSharedPreferences(getActivity(), "aboutMe", aboutMe);
@@ -440,7 +440,7 @@ public class ProfileFragment extends Fragment {
 
                     Callable<Void> setImage = new Callable<Void>() {
                         @Override
-                        public Void call() throws Exception {
+                        public Void call() {
                             String imageFromDB = doWithDatabase.getValue("image").toString();
                             Bitmap bitmap = App.decodeImage(imageFromDB);
                             bitmaps.add(bitmap);
@@ -450,12 +450,8 @@ public class ProfileFragment extends Fragment {
                             return null;
                         }
                     };
+                    doWithDatabase.execute(setImage);
 
-                    try {
-                        doWithDatabase.execute(setImage);
-                    } catch (DoWithDatabaseException e) {
-                        Log.e("DoWithDatabaseException", e.getMessage());
-                    }
                 }
                 imageDialog.show();
 

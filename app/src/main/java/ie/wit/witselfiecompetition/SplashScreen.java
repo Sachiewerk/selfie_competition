@@ -13,7 +13,8 @@ import ie.wit.witselfiecompetition.model.App;
 
 /**
  * Splash Screen Class
- * Logo for the app
+ * Logo for the app and Check with database
+ * to validate login anf redirect user accordingly
  * Created by Yahya Almardeny on 08/02/18.
  */
 public class SplashScreen extends AppCompatActivity {
@@ -27,8 +28,8 @@ public class SplashScreen extends AppCompatActivity {
         // check the phone orientation and set appropriate layout accordingly
         App.setContentAccordingToOrientation(this);
 
-        /*****Server-Side Admin should manage tokens from users to prevent the same user from deleting the account
-         * from one device and keep logged in on another*****/
+        /*****Server-Side Admin is required to manage tokens from users to prevent the same user from deleting the account
+         * from one device and keep logged-in on another*****/
 
         // run asynchronously while displaying splash screen
         final Thread checkThread = new Thread(new Runnable() {

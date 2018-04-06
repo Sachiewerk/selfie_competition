@@ -61,7 +61,7 @@ public class DoWithDatabase{
      * @param postImplementation
      * @throws DoWithDatabaseException
      */
-    public void execute(final Callable<Void> postImplementation) throws DoWithDatabaseException {
+    public void execute(final Callable<Void> postImplementation) {
         DatabaseReference dbr = FirebaseDatabase.getInstance().getReference().child(node)
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         ValueEventListener vel = new ValueEventListener() {

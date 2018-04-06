@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,7 +28,6 @@ import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1017,7 +1015,7 @@ public class SelfieNavigator extends Fragment {
                         "Are you sure that you want to report this selfie as inappropriate?", "Report",
                         new Callable<Void>() {
                             @Override
-                            public Void call() throws Exception {
+                            public Void call() {
 
                                 fullScreenProgressBar.show();
                                 DatabaseReference root = FirebaseDatabase.getInstance().getReference().child("Report")
