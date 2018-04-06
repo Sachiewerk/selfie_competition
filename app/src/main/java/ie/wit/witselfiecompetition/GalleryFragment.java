@@ -455,8 +455,9 @@ public class GalleryFragment extends Fragment {
             case R.id.saveItem:
                 if (App.shouldAskPermissions()) {
                     askPermissions();
+                }else{
+                    saveImages();
                 }
-                saveImages();
                 return true;
 
             case R.id.detailsItem:
