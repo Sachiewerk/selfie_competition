@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.concurrent.Callable;
 
@@ -53,7 +54,8 @@ public class SplashScreen extends AppCompatActivity {
                         };
 
 
-                        App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, postSuccessfulCopy);
+                        //App.copyUserInfoFromDatabaseToSharedPref(SplashScreen.this, postSuccessfulCopy);
+                        App.copyUserInfoFromDatabaseToSharedPrefAndRedirect(SplashScreen.this, Main.class, ProfileSetup.class);
                     }
                     else{
                         App.redirect(SplashScreen.this, Login.class, false);
