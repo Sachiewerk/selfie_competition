@@ -686,13 +686,6 @@ public class SelfieNavigator extends Fragment {
      * @return
      */
     private View getSelfieView(final Selfie selfie) {
-        // load view
-        View view = inflater.inflate(R.layout.selfie_view, null);
-        ImageView selfieIm = view.findViewById(R.id.selfie);
-        final ImageView likeIconClicked = view.findViewById(R.id.likeIconClicked);
-        final ImageView likeIcon = view.findViewById(R.id.likeIcon);
-        final TextView likesTextView = view.findViewById(R.id.likesTextView);
-
         // decode image string, create bitmap and set it
         byte[] decodedString = Base64.decode(selfie.getImage(), Base64.DEFAULT);
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -703,6 +696,13 @@ public class SelfieNavigator extends Fragment {
         options.inPreferredConfig = Bitmap.Config.RGB_565; // no alpha is required, no transparency factor
         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length, options);
         bitmaps.add(bitmap);
+
+        // load view
+        View view = inflater.inflate(R.layout.selfie_view, null);
+        ImageView selfieIm = view.findViewById(R.id.selfie);
+        final ImageView likeIconClicked = view.findViewById(R.id.likeIconClicked);
+        final ImageView likeIcon = view.findViewById(R.id.likeIcon);
+        final TextView likesTextView = view.findViewById(R.id.likesTextView);
         selfieIm.setImageBitmap(bitmap);
 
 

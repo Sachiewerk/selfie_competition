@@ -78,7 +78,9 @@ import ie.wit.witselfiecompetition.model.UserProfileDialog;
 
 
 /**
- * TO-DO in CA2
+ * This is a Gallery Fragment Class that displays
+ * all the user's Slefie Images fetched from database that
+ * had been submitted in all competitions
  */
 public class GalleryFragment extends Fragment {
 

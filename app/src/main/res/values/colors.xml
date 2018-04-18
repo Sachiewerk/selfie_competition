@@ -27,4 +27,5 @@
     <color name="Black">#000</color>
     <color name="TransparentGrey">#7F000000</color>
     <color name="Transparent">#00000000</color>
+    <color name="colorRedLike">#df0800</color>
 </resources>
