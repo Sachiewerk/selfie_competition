@@ -32,7 +32,7 @@
         android:background="@drawable/edit_text"
         android:hint="@string/prompt_email"
         android:inputType="textEmailAddress"
-        android:maxLength="25"
+        android:maxLength="50"
         android:singleLine="true"
         android:textColor="@color/input"
         android:textSize="@dimen/_12ssp"
