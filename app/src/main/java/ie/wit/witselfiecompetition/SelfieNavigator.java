@@ -984,11 +984,13 @@ public class SelfieNavigator extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if(viewPager.getVisibility() == View.VISIBLE) {
-            if (userSubmittedSelfie.get() && viewPager.getCurrentItem() == 0) {
-                delete.setVisible(true);
-            } else {
-                delete.setVisible(false);
+        if(OPEN) {
+            if (viewPager.getVisibility() == View.VISIBLE) {
+                if (userSubmittedSelfie.get() && viewPager.getCurrentItem() == 0) {
+                    delete.setVisible(true);
+                } else {
+                    delete.setVisible(false);
+                }
             }
         }
     }
